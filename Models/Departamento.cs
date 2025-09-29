@@ -14,7 +14,7 @@ namespace ActiveControlApi.Models
         [Required]
         [StringLength(45)]
         public string Nome { get; set; }
-
+        [ForeignKey("Empresa")]
         public int EmpresaId { get; set; }
         [JsonIgnore]
         public Empresa Empresa { get; set; }

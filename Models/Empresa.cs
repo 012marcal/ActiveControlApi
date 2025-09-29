@@ -41,5 +41,7 @@ namespace ActiveControlApi.Models
 
         [Column(TypeName = "char(2)")]
         public string UfEmpresa { get; set; }
+        [JsonIgnore]
+        public ICollection<Departamento> Departamentos { get; set; } = new List<Departamento>();
     }
 }

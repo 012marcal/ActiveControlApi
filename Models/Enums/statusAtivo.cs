@@ -2,8 +2,8 @@
 {
     public enum statusAtivo
     {
-        Disponivel, 
-        EmUso, 
-        Manutencao
+        Disponivel = 1, 
+        EmUso = 2 , 
+        Manutencao = 3
     }
 }

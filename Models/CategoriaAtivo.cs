@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ActiveControlApi.Models
 {
@@ -11,5 +12,7 @@ namespace ActiveControlApi.Models
         [Required]
         [StringLength(50)]
         public string NomeCategoria { get; set; }
+        [JsonIgnore]
+        public ICollection<Ativo> Ativos { get; set; } = new List<Ativo>();
     }
 }

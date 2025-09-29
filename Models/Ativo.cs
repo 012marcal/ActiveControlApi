@@ -26,13 +26,27 @@ namespace ActiveControlApi.Models
         [Required]
         [Column(TypeName = "date")]
         public DateTime DataAquisicao { get; set; }
-        public statusAtivo? statusAtivo { get; set; }
+        public statusAtivo? StatusAtivo { get; set; }
         [Required]
-        [StringLength(50)]
+        [ForeignKey("ModeloAtivo")]
         public int ModeloAtivoId { get; set; }
         [JsonIgnore]
-        public ModeloAtivo  ModeloAtivo{ get; set; }
+        public ModeloAtivo ModeloAtivo { get; set; }
 
+        [Required]
+        [ForeignKey("CategoriaAtivo")]
+        public int CategoriaAtivoId { get; set; }
+
+        [JsonIgnore]
+        public CategoriaAtivo CategoriaAtivo { get; set; }
+
+        [Required]
+        [Range(1, 99, ErrorMessage = "A vida útil deve ser entre 1 e 99 anos.")]
+        public int VidaUtilEstimadaAnos { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal TaxaDepreciacaoAnual {  get; set; }
 
     }
 }
