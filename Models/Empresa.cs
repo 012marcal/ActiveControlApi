@@ -6,8 +6,8 @@ using System.Globalization;
 
 namespace ActiveControlApi.Models
 {
-    [Table("Empresas")]
-    public class Empresa
+    [Table("Empresa")]
+    public class Empresa 
     {
         [Key]
         public int Id { get; set; }

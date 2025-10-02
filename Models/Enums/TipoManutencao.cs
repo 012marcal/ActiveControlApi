@@ -1,6 +1,8 @@
 ﻿namespace ActiveControlApi.Models.Enums
 {
-    public class TipoManutencao
+    public enum TipoManutencao
     {
+        Corretiva = 1,
+        Preventiva =2
     }
 }

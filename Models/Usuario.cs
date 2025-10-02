@@ -4,7 +4,8 @@ using System.Text.Json.Serialization;
 
 namespace ActiveControlApi.Models
 {
-    public class Usuario
+    [Table("Usuario")]
+    public class Usuario 
     {
 
         [Key]
@@ -27,11 +28,9 @@ namespace ActiveControlApi.Models
         public byte[] SenhaSalt { get; set; }
         public DateTime TokenDataCriacao { get; set; } = DateTime.UtcNow;
 
-        [Required]
-        [ForeignKey("Cargo")]
-        public int CargoId { get; set; }
-
         [JsonIgnore]
-        public Cargo Cargo { get; set; }
+        public ICollection<UsuarioCargo> CargosHistoricos { get; set; } = new List<UsuarioCargo>();
+
+
     }
 }

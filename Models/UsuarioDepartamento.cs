@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace ActiveControlApi.Models
 {
+    [Table("UsuarioDepartamento")]
     public class UsuarioDepartamento
     {
         [Key]

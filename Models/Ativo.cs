@@ -5,8 +5,8 @@ using System.Text.Json.Serialization;
 
 namespace ActiveControlApi.Models
 {
-    [Table("Ativos")]
-    public class Ativo
+    [Table("Ativo")]
+    public class Ativo 
     {
         [Key]
         public int Id { get; set; }

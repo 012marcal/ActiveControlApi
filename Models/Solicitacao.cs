@@ -6,13 +6,14 @@ using System.Text.Json.Serialization;
 
 namespace ActiveControlApi.Models
 {
+    [Table("Solicitacao")]
     public class Solicitacao
     {
 
         [Key]
         public int Id { get; set; }
         [Required]
-        [ForeignKey("UsuarioSolicitante")]
+        [ForeignKey("Usuario")]
         public int UsuarioSolicitanteId { get; set; }
         [JsonIgnore]
         public Usuario Usuario {  get; set; }
@@ -30,8 +31,15 @@ namespace ActiveControlApi.Models
 
         public StatusSolicitacao? StatusSolicitacao { get; set; }
 
-        public DateTime DataAbertura { get; set; }
+        public DateTime DataAbertura { get; set; } = DateTime.UtcNow;
         public DateTime DataFechamento { get; set; }
 
+        // 🔹 Navegações 1:1
+        [JsonIgnore]
+        public Incidente Incidente { get; set; }
+        [JsonIgnore]
+        public Manutencao Manutencao { get; set; }
+        [JsonIgnore]
+        public Devolucao Devolucao { get; set; }
     }
 }

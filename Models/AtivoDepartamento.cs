@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace ActiveControlApi.Models
 {
+    [Table("AtivoDepartamento")]
     public class AtivoDepartamento
     {
 
@@ -26,8 +27,6 @@ namespace ActiveControlApi.Models
         public DateTime DataInicio { get; set; }
 
         public DateTime? DataFim { get; set; }
-
-
 
     }
 }
