@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ActiveControlApi.DTO.Empresa
+namespace ActiveControlApi.DTO.Empresas
 {
     public class EmpresaDTO
     {

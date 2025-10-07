@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace ActiveControlApi.Models
 {
     [Table("Empresa")]
-    public class Empresa 
+    public class Empresa
     {
         [Key]
         public int Id { get; set; }
