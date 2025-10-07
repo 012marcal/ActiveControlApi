@@ -10,6 +10,8 @@ namespace ActiveControlApi.Models
     public class Solicitacao
     {
 
+        //incluir o campo Titulo para obter o titulo da solicitação 
+
         [Key]
         public int Id { get; set; }
         [Required]
