@@ -1,4 +1,5 @@
-﻿using ActiveControlApi.DTO.Empresa;
+﻿using ActiveControlApi.DTO.Empresas;
+using ActiveControlApi.DTO.MappingExtensions;
 using ActiveControlApi.Repositories;
 
 namespace ActiveControlApi.Services.Empresa
@@ -20,13 +21,30 @@ namespace ActiveControlApi.Services.Empresa
 
             var empresas = await _uow.Empresa.GetAll();
 
-            if (empresas is null)
-                throw new Exception("Empresas Nula");
+            if(!empresas.Any())
+                return Enumerable.Empty<EmpresaDTO>();
 
-            var EmpresasDTO = empresas.
+            var empresasDto = empresas.ParaListaEmpresaDto();
+            return empresasDto;
+        }
+
+        public async Task<EmpresaDTO> PegarPorId(int id)
+        {
+            var empresa = await _uow.Empresa.Get(c => c.Id == id);
 
 
-            return empresas;
+            if (empresa == null)
+                throw new DirectoryNotFoundException($"Empresa com o {id} não Encontrada");
+
+            var empresaDto = empresa.ParaEmpresaDto();
+            return empresaDto;
+        }
+
+        public async Task<EmpresaDTO> CriarEmpresa(EmpresaDTO empresa)
+        {
+
+            throw new NotImplementedException();
+           // _uow.Empresa.Create()
 
         }
 

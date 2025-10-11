@@ -4,6 +4,6 @@ namespace ActiveControlApi.Repositories.Especificos
 {
     public interface IUsuarioCargoRepository : IGenericRepository<UsuarioCargo>
     {
-
+                
     }
 }

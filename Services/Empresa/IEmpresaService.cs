@@ -1,4 +1,4 @@
-﻿using ActiveControlApi.DTO.Empresa;
+﻿using ActiveControlApi.DTO.Empresas;
 
 namespace ActiveControlApi.Services.Empresa
 {
