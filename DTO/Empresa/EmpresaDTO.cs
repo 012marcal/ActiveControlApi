@@ -12,7 +12,7 @@ namespace ActiveControlApi.DTO.Empresas
         [StringLength(50)]
         public string? NomeFantasia { get; set; }
 
-        [Required (ErrorMessage = "Campo Email Obrigatorio")]
+        [Required (ErrorMessage = "Campo Cnpj Obrigatorio")]
         [StringLength(14)]
         public string Cnpj { get; set; }
 

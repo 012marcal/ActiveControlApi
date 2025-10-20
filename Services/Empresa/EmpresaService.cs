@@ -42,11 +42,28 @@ namespace ActiveControlApi.Services.Empresa
             return empresaDto;
         }
 
-        public async Task<EmpresaDTO> CriarEmpresa(EmpresaDTO empresa)
+        public async Task<EmpresaDTO> CriarEmpresa(EmpresaDTO empresaDto)
         {
+            var empresa = empresaDto.ParaEmpresa();
 
-            throw new NotImplementedException();
-           // _uow.Empresa.Create()
+
+            var (valido, jaExiste) = await ValidarEChecarCnpjAsync(empresa.Cnpj);
+
+            if (!valido)
+                throw new Exception("CNPJ inválido.");
+
+            if (jaExiste)
+                throw new Exception("CNPJ já cadastrado.");
+
+
+            var empresaCriada =  _uow.Empresa.Create(empresa);
+            
+            await _uow.CommitAsync();
+
+            var empresaCriadaDto = empresaCriada.ParaEmpresaDto(); 
+            
+            return empresaCriadaDto;
+
 
         }
 
