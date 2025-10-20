@@ -46,5 +46,10 @@ namespace ActiveControlApi.Repositories
         {
             return _context.Set<T>().AsNoTracking();
         }
+
+        public async Task<bool> Any(Expression<Func<T,bool>> predicate)
+        {
+            return await _context.Set<T>().AnyAsync(predicate);
+        }
     }
 }
