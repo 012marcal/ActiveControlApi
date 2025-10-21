@@ -1,6 +1,8 @@
 ﻿using ActiveControlApi.DTO.Empresas;
 using ActiveControlApi.DTO.MappingExtensions;
+using ActiveControlApi.Models;
 using ActiveControlApi.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
@@ -117,5 +119,118 @@ namespace ActiveControlApi.Services.Empresa
             bool existe = await CnpjJaExisteAsync(cnpj);
             return (true, existe);
         }
+
+
+        //buscar Empresas por Nome, RazaoSocial, Cnpj, Cidade ou Estado.
+        public async Task<IEnumerable<EmpresaDTO>> BuscarEmpresas(FiltroEmpresaDTO filtroEmpresa)
+        {
+
+            var query = _uow.Empresa.GetQueryble();
+
+
+            if (!string.IsNullOrWhiteSpace(filtroEmpresa.RazaoSocial))
+                query = query.Where(e => EF.Functions.Like(e.NomeFantasia, $"%{filtroEmpresa.RazaoSocial}%"));
+
+            if (!string.IsNullOrWhiteSpace(filtroEmpresa.Cnpj))
+            {
+                string cnpjDigitos = Regex.Replace(filtroEmpresa.Cnpj, @"\D", "");
+                query = query.Where(e => Regex.Replace(e.Cnpj, @"\D", "") == cnpjDigitos);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtroEmpresa.CidadeEmpresa))
+                query = query.Where(e => e.CidadeEmpresa.Contains(filtroEmpresa.CidadeEmpresa));
+            
+            if (!string.IsNullOrWhiteSpace(filtroEmpresa.UfEmpresa))
+                query = query.Where(e => e.UfEmpresa.Contains(filtroEmpresa.UfEmpresa));
+
+
+            var empresas = await query.ToListAsync();
+
+            if (!empresas.Any())
+                return Enumerable.Empty<EmpresaDTO>();
+
+
+            var empresasDto = empresas.ParaListaEmpresaDto();
+
+            return empresasDto;
+
+
+        }
+
+        //atualiza empresa Parcialmente
+        public async Task<EmpresaDTO> AtualizarEmpresa(int id, EmpresaDTO empresaRegistroDTO)
+        {
+            
+            var empresa = await _uow.Empresa.Get(e => e.Id == id);
+            if (empresa == null)
+                throw new KeyNotFoundException($"Empresa com id {id} não encontrada.");
+
+
+            if (!string.IsNullOrEmpty(empresaRegistroDTO.RazaoSocial))               
+                empresa.RazaoSocial = empresaRegistroDTO.RazaoSocial;
+
+            if (!string.IsNullOrEmpty(empresaRegistroDTO.NomeFantasia))
+                empresa.NomeFantasia = empresaRegistroDTO.NomeFantasia;
+
+            if (!string.IsNullOrEmpty(empresaRegistroDTO.Cnpj))
+            {
+                var (valido, jaExiste) = await ValidarEChecarCnpjAsync(empresaRegistroDTO.Cnpj);
+                if (!valido)
+                    throw new Exception("CNPJ inválido.");
+
+                if (jaExiste)
+                    throw new Exception("CNPJ já cadastrado.");
+
+                empresa.Cnpj = empresaRegistroDTO.Cnpj;
+
+            }
+                
+            if (!string.IsNullOrEmpty(empresaRegistroDTO.Email))
+                empresa.Email = empresaRegistroDTO.Email;
+            
+            if (!string.IsNullOrEmpty(empresaRegistroDTO.TelContato))
+                empresa.TelContato = empresaRegistroDTO.TelContato;
+            
+            if (!string.IsNullOrEmpty(empresaRegistroDTO.EnderecoEmpresa))
+                empresa.EnderecoEmpresa = empresaRegistroDTO.EnderecoEmpresa;
+            
+            if (!string.IsNullOrEmpty(empresaRegistroDTO.CidadeEmpresa))
+                empresa.CidadeEmpresa = empresaRegistroDTO.CidadeEmpresa;
+
+            if (!string.IsNullOrEmpty(empresaRegistroDTO.UfEmpresa))
+                empresa.UfEmpresa = empresaRegistroDTO.UfEmpresa;
+
+            _uow.Empresa.Update(empresa);
+
+            await _uow.CommitAsync();
+
+            var empresaDto = empresa.ParaEmpresaDto();
+
+            return empresaDto;
+        }
+
+        public async Task<bool> RemoverEmpresa(int id)
+        {
+
+            var empresaRemover = await _uow.Empresa.Get(e => e.Id == id);
+            if (empresaRemover == null)
+                throw new KeyNotFoundException($"Empresa com id {id} não encontrada.");
+
+            _uow.Empresa.Delete(empresaRemover);
+
+            try
+            {
+                var linhasAfetadas = await _uow.CommitAsync();
+                return linhasAfetadas > 0;
+            }
+            catch (Exception ex) 
+            {
+                return false;
+            
+            }
+
+        }
+
+
     }
 }

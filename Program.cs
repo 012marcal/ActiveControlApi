@@ -1,6 +1,7 @@
 using ActiveControlApi.Data;
 using ActiveControlApi.Repositories;
 using ActiveControlApi.Repositories.Especificos;
+using ActiveControlApi.Services.Empresa;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
+
+//REPOSITORIES >
 builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
 builder.Services.AddScoped<IAtivoRepository, AtivoRepository>();
 builder.Services.AddScoped<IAtivoDepartamentoRepository, AtivoDepartamentoRepository>();
@@ -36,6 +39,10 @@ builder.Services.AddScoped<ISolicitacaoRepository,  SolicitacaoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioCargoRepository, UsuarioCargoRepository>();
 builder.Services.AddScoped<IUsuarioDepartamentoRepository, UsuarioDepartamentoRepository>();
+
+//SERVIÇOS >
+builder.Services.AddScoped<IEmpresaService,EmpresaService>();
+
 
 
 var app = builder.Build();
