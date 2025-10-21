@@ -33,7 +33,7 @@ namespace ActiveControlApi.DTO.Empresas
 
 
         [Required (ErrorMessage = "Campo UF empresa Obrigatório")]
-        [Column(TypeName = "char(2)")]
+        [StringLength(2, MinimumLength = 2, ErrorMessage = "A UF deve ter exatamente 2 caracteres (sigla).")]
         public string UfEmpresa { get; set; }
     }
 }

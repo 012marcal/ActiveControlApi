@@ -6,6 +6,10 @@ namespace ActiveControlApi.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
+        public UnitOfWork(AppDbContext context)
+        {
+            _context = context;
+        }
 
         private IAtivoRepository _ativo;
         private IAtivoDepartamentoRepository _ativoDepartamento;

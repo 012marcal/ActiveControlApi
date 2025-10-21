@@ -16,8 +16,6 @@ namespace ActiveControlApi.Services.Empresa
         public EmpresaService(IUnitOfWork uow)
         {
             _uow = uow;
-
-            
         }
 
         public async Task<IEnumerable<EmpresaDTO>> PegarTodas()
@@ -106,7 +104,7 @@ namespace ActiveControlApi.Services.Empresa
             var digits = Regex.Replace(cnpj, @"\D", "");
 
             return await _uow.Empresa
-                .Any(e => Regex.Replace(e.Cnpj, @"\D", "") == digits);
+                .Any(e =>e.Cnpj == digits);
         }
 
         // 3. Método que combina validação + existência

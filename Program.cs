@@ -39,6 +39,7 @@ builder.Services.AddScoped<ISolicitacaoRepository,  SolicitacaoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioCargoRepository, UsuarioCargoRepository>();
 builder.Services.AddScoped<IUsuarioDepartamentoRepository, UsuarioDepartamentoRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //SERVIÇOS >
 builder.Services.AddScoped<IEmpresaService,EmpresaService>();
