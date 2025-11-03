@@ -122,40 +122,34 @@ namespace ActiveControlApi.Services.Empresa
         //buscar Empresas por Nome, RazaoSocial, Cnpj, Cidade ou Estado.
         public async Task<IEnumerable<EmpresaDTO>> BuscarEmpresas(FiltroEmpresaDTO filtroEmpresa)
         {
-
             var query = _uow.Empresa.GetQueryble();
-
 
             if (!string.IsNullOrWhiteSpace(filtroEmpresa.RazaoSocial))
                 query = query.Where(e => EF.Functions.Like(e.NomeFantasia, $"%{filtroEmpresa.RazaoSocial}%"));
 
             if (!string.IsNullOrWhiteSpace(filtroEmpresa.Cnpj))
             {
+               
                 string cnpjDigitos = Regex.Replace(filtroEmpresa.Cnpj, @"\D", "");
-                query = query.Where(e => Regex.Replace(e.Cnpj, @"\D", "") == cnpjDigitos);
+                query = query.Where(e => e.Cnpj == cnpjDigitos);
             }
 
             if (!string.IsNullOrWhiteSpace(filtroEmpresa.CidadeEmpresa))
                 query = query.Where(e => e.CidadeEmpresa.Contains(filtroEmpresa.CidadeEmpresa));
-            
+
             if (!string.IsNullOrWhiteSpace(filtroEmpresa.UfEmpresa))
                 query = query.Where(e => e.UfEmpresa.Contains(filtroEmpresa.UfEmpresa));
-
 
             var empresas = await query.ToListAsync();
 
             if (!empresas.Any())
                 return Enumerable.Empty<EmpresaDTO>();
 
-
             var empresasDto = empresas.ParaListaEmpresaDto();
-
             return empresasDto;
-
-
         }
 
-        //atualiza empresa Parcialmente
+
         public async Task<EmpresaDTO> AtualizarEmpresa(int id, EmpresaDTO empresaRegistroDTO)
         {
             
@@ -163,49 +157,48 @@ namespace ActiveControlApi.Services.Empresa
             if (empresa == null)
                 throw new KeyNotFoundException($"Empresa com id {id} não encontrada.");
 
-
-            if (!string.IsNullOrEmpty(empresaRegistroDTO.RazaoSocial))               
+            
+            if (!string.IsNullOrWhiteSpace(empresaRegistroDTO.RazaoSocial))
                 empresa.RazaoSocial = empresaRegistroDTO.RazaoSocial;
 
-            if (!string.IsNullOrEmpty(empresaRegistroDTO.NomeFantasia))
+            if (!string.IsNullOrWhiteSpace(empresaRegistroDTO.NomeFantasia))
                 empresa.NomeFantasia = empresaRegistroDTO.NomeFantasia;
 
-            if (!string.IsNullOrEmpty(empresaRegistroDTO.Cnpj))
-            {
-                var (valido, jaExiste) = await ValidarEChecarCnpjAsync(empresaRegistroDTO.Cnpj);
-                if (!valido)
-                    throw new Exception("CNPJ inválido.");
-
-                if (jaExiste)
-                    throw new Exception("CNPJ já cadastrado.");
-
-                empresa.Cnpj = empresaRegistroDTO.Cnpj;
-
-            }
-                
-            if (!string.IsNullOrEmpty(empresaRegistroDTO.Email))
+            if (!string.IsNullOrWhiteSpace(empresaRegistroDTO.Email))
                 empresa.Email = empresaRegistroDTO.Email;
-            
-            if (!string.IsNullOrEmpty(empresaRegistroDTO.TelContato))
+
+            if (!string.IsNullOrWhiteSpace(empresaRegistroDTO.TelContato))
                 empresa.TelContato = empresaRegistroDTO.TelContato;
-            
-            if (!string.IsNullOrEmpty(empresaRegistroDTO.EnderecoEmpresa))
+
+            if (!string.IsNullOrWhiteSpace(empresaRegistroDTO.EnderecoEmpresa))
                 empresa.EnderecoEmpresa = empresaRegistroDTO.EnderecoEmpresa;
-            
-            if (!string.IsNullOrEmpty(empresaRegistroDTO.CidadeEmpresa))
+
+            if (!string.IsNullOrWhiteSpace(empresaRegistroDTO.CidadeEmpresa))
                 empresa.CidadeEmpresa = empresaRegistroDTO.CidadeEmpresa;
 
-            if (!string.IsNullOrEmpty(empresaRegistroDTO.UfEmpresa))
+            if (!string.IsNullOrWhiteSpace(empresaRegistroDTO.UfEmpresa))
                 empresa.UfEmpresa = empresaRegistroDTO.UfEmpresa;
 
-            _uow.Empresa.Update(empresa);
+            if (!string.IsNullOrWhiteSpace(empresaRegistroDTO.Cnpj) && empresaRegistroDTO.Cnpj != empresa.Cnpj)
+            {
+                var (valido, jaExiste) = await ValidarEChecarCnpjAsync(empresaRegistroDTO.Cnpj);
 
+                if (!valido)
+                    throw new InvalidOperationException("CNPJ inválido.");
+
+                if (jaExiste)
+                    throw new InvalidOperationException("CNPJ já cadastrado.");
+
+                empresa.Cnpj = empresaRegistroDTO.Cnpj;
+            }
+
+    
+            _uow.Empresa.Update(empresa);
             await _uow.CommitAsync();
 
-            var empresaDto = empresa.ParaEmpresaDto();
-
-            return empresaDto;
+            return empresa.ParaEmpresaDto();
         }
+
 
         public async Task<bool> RemoverEmpresa(int id)
         {

@@ -3,15 +3,28 @@ using ActiveControlApi.Repositories;
 using ActiveControlApi.Repositories.Especificos;
 using ActiveControlApi.Services.Empresa;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models; // Necessário para OpenApiInfo
+using Swashbuckle.AspNetCore.Annotations; // Adicionar este using para EnableAnnotations()
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Active Control API",
+        Version = "v1",
+        Description = "API para o sistema Active Control. Permite gerenciar ativos, departamentos e solicitações em tempo real."
+    });
+
+    
+    c.EnableAnnotations(); 
+});
 
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultString");
@@ -23,7 +36,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 
 //REPOSITORIES >
-builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IAtivoRepository, AtivoRepository>();
 builder.Services.AddScoped<IAtivoDepartamentoRepository, AtivoDepartamentoRepository>();
 builder.Services.AddScoped<IAtivoUsuarioRepository, AtivoUsuarioRepository>();
@@ -35,15 +48,14 @@ builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<IIncidenteRepository, IncidenteRepository>();
 builder.Services.AddScoped<IManutencaoRepository, ManutencaoRepository>();
 builder.Services.AddScoped<IModeloAtivoRepository, ModeloAtivoRepository>();
-builder.Services.AddScoped<ISolicitacaoRepository,  SolicitacaoRepository>();  
+builder.Services.AddScoped<ISolicitacaoRepository, SolicitacaoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioCargoRepository, UsuarioCargoRepository>();
 builder.Services.AddScoped<IUsuarioDepartamentoRepository, UsuarioDepartamentoRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //SERVIÇOS >
-builder.Services.AddScoped<IEmpresaService,EmpresaService>();
-
+builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 
 
 var app = builder.Build();
@@ -52,7 +64,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Active Control API v1");
+    });
 }
 
 app.UseHttpsRedirection();
