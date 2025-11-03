@@ -2,8 +2,15 @@ using ActiveControlApi.Data;
 using ActiveControlApi.Repositories;
 using ActiveControlApi.Repositories.Especificos;
 using ActiveControlApi.Services.Empresa;
+using ActiveControlApi.Services.Ativo;
+using ActiveControlApi.Services.Departamento;
+using ActiveControlApi.Services.CategoriaAtivo;
+using ActiveControlApi.Services.ModeloAtivo;
+using ActiveControlApi.Services.Usuario;
+using ActiveControlApi.Services.AtivoUsuario;
+using ActiveControlApi.Services.AtivoDepartamento;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models; // Necessário para OpenApiInfo
+using Microsoft.OpenApi.Models; // Necessï¿½rio para OpenApiInfo
 using Swashbuckle.AspNetCore.Annotations; // Adicionar este using para EnableAnnotations()
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +26,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Active Control API",
         Version = "v1",
-        Description = "API para o sistema Active Control. Permite gerenciar ativos, departamentos e solicitações em tempo real."
+        Description = "API para o sistema Active Control. Permite gerenciar ativos, departamentos e solicitaï¿½ï¿½es em tempo real."
     });
 
     
@@ -54,8 +61,15 @@ builder.Services.AddScoped<IUsuarioCargoRepository, UsuarioCargoRepository>();
 builder.Services.AddScoped<IUsuarioDepartamentoRepository, UsuarioDepartamentoRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-//SERVIÇOS >
+//SERVIï¿½OS >
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
+builder.Services.AddScoped<IAtivoService, AtivoService>();
+builder.Services.AddScoped<IDepartamentoService, DepartamentoService>();
+builder.Services.AddScoped<ICategoriaAtivoService, CategoriaAtivoService>();
+builder.Services.AddScoped<IModeloAtivoService, ModeloAtivoService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IAtivoUsuarioService, AtivoUsuarioService>();
+builder.Services.AddScoped<IAtivoDepartamentoService, AtivoDepartamentoService>();
 
 
 var app = builder.Build();
