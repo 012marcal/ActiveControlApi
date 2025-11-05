@@ -13,3 +13,6 @@ namespace ActiveControlApi.DTO.CategoriaAtivo
 }
 
 
+
+
+
