@@ -21,6 +21,3 @@ namespace ActiveControlApi.DTO.ModeloAtivo
 }
 
 
-
-
-

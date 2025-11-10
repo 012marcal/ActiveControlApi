@@ -62,6 +62,3 @@ namespace ActiveControlApi.Services.CategoriaAtivo
 }
 
 
-
-
-

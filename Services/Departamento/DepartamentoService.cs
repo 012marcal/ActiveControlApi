@@ -65,6 +65,3 @@ namespace ActiveControlApi.Services.Departamento
 }
 
 
-
-
-

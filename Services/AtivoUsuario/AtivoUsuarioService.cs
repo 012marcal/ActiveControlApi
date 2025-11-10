@@ -66,6 +66,3 @@ namespace ActiveControlApi.Services.AtivoUsuario
 }
 
 
-
-
-

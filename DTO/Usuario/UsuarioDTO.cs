@@ -26,6 +26,3 @@ namespace ActiveControlApi.DTO.Usuario
 }
 
 
-
-
-

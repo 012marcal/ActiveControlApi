@@ -92,6 +92,3 @@ namespace ActiveControlApi.Controllers.Ativos
 }
 
 
-
-
-

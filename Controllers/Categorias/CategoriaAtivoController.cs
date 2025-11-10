@@ -98,6 +98,3 @@ namespace ActiveControlApi.Controllers.Categorias
 }
 
 
-
-
-
