@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ActiveControlApi.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -27,6 +28,9 @@ namespace ActiveControlApi.Models
         [JsonIgnore]
         public byte[] SenhaSalt { get; set; }
         public DateTime TokenDataCriacao { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public Role Role { get; set; } = Role.User;
 
         [JsonIgnore]
         public ICollection<UsuarioCargo> CargosHistoricos { get; set; } = new List<UsuarioCargo>();

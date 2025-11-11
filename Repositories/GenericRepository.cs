@@ -24,6 +24,11 @@ namespace ActiveControlApi.Repositories
             return await _context.Set<T>().ToListAsync();
         }
 
+        public async Task<IEnumerable<T>> GetAll(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().Where(predicate).ToListAsync();
+        }
+
         public T Create(T entity)
         {
             _context.Set<T>().Add(entity);

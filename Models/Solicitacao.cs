@@ -9,16 +9,24 @@ namespace ActiveControlApi.Models
     [Table("Solicitacao")]
     public class Solicitacao
     {
-
-        //incluir o campo Titulo para obter o titulo da solicitação 
-
         [Key]
         public int Id { get; set; }
+
+        [Required]
+        [StringLength(200)]
+        public string Titulo { get; set; }
+
         [Required]
         [ForeignKey("Usuario")]
         public int UsuarioSolicitanteId { get; set; }
         [JsonIgnore]
         public Usuario Usuario {  get; set; }
+
+        [ForeignKey("UsuarioResponsavel")]
+        public int? UsuarioResponsavelId { get; set; }
+        [JsonIgnore]
+        public Usuario? UsuarioResponsavel { get; set; }
+
         [Required]
         [ForeignKey("Ativo")]
         public int AtivoId { get; set; }
@@ -28,13 +36,16 @@ namespace ActiveControlApi.Models
         public TipoSolicitacao TipoSolicitacao { get; set; }
 
         [Required]
-        [StringLength(300)]
+        [StringLength(1000)]
         public string Descricao { get; set; }   
 
         public StatusSolicitacao? StatusSolicitacao { get; set; }
 
+        public PrioridadeSolicitacao Prioridade { get; set; } = PrioridadeSolicitacao.Media;
+
         public DateTime DataAbertura { get; set; } = DateTime.UtcNow;
-        public DateTime DataFechamento { get; set; }
+        public DateTime? DataPrazo { get; set; }
+        public DateTime? DataFechamento { get; set; }
 
         // 🔹 Navegações 1:1
         [JsonIgnore]

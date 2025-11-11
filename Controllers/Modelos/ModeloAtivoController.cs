@@ -1,5 +1,6 @@
 using ActiveControlApi.DTO.ModeloAtivo;
 using ActiveControlApi.Services.ModeloAtivo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
@@ -7,6 +8,7 @@ using Swashbuckle.Swagger.Annotations;
 namespace ActiveControlApi.Controllers.Modelos
 {
     [ApiController]
+    [Authorize]
     public class ModeloAtivoController : ControllerBase
     {
         private readonly IModeloAtivoService _service;

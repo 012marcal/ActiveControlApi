@@ -14,7 +14,8 @@ namespace ActiveControlApi.DTO.MappingExtensions
                 NomeCompleto = entity.NomeCompleto,
                 Cpf = entity.Cpf,
                 Email = entity.Email,
-                Senha = string.Empty
+                Senha = string.Empty,
+                Role = entity.Role
             };
         }
 

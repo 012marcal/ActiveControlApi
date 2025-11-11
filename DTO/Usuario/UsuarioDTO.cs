@@ -1,3 +1,4 @@
+using ActiveControlApi.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace ActiveControlApi.DTO.Usuario
@@ -22,6 +23,8 @@ namespace ActiveControlApi.DTO.Usuario
         [Required]
         [StringLength(60, MinimumLength = 6)]
         public string Senha { get; set; }
+
+        public Role Role { get; set; } = Role.User;
     }
 }
 

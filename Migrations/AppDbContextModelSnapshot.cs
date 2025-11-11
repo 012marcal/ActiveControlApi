@@ -173,6 +173,40 @@ namespace ActiveControlApi.Migrations
                     b.ToTable("CategoriaAtivo");
                 });
 
+            modelBuilder.Entity("ActiveControlApi.Models.ComentarioSolicitacao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comentario")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("DataComentario")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Interno")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("SolicitacaoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SolicitacaoId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("ComentarioSolicitacao");
+                });
+
             modelBuilder.Entity("ActiveControlApi.Models.Departamento", b =>
                 {
                     b.Property<int>("Id")
@@ -259,8 +293,8 @@ namespace ActiveControlApi.Migrations
 
                     b.Property<string>("Cnpj")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -272,7 +306,6 @@ namespace ActiveControlApi.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<string>("NomeFantasia")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -282,7 +315,6 @@ namespace ActiveControlApi.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<string>("TelContato")
-                        .IsRequired()
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
 
@@ -295,6 +327,67 @@ namespace ActiveControlApi.Migrations
                     b.ToTable("Empresa");
                 });
 
+            modelBuilder.Entity("ActiveControlApi.Models.HistoricoMovimentacao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AtivoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DadosAnteriores")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("DadosNovos")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("DataMovimentacao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DepartamentoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int?>("SolicitacaoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TipoMovimentacao")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UsuarioResponsavelId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AtivoId");
+
+                    b.HasIndex("DepartamentoId");
+
+                    b.HasIndex("SolicitacaoId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.HasIndex("UsuarioResponsavelId");
+
+                    b.ToTable("HistoricoMovimentacao");
+                });
+
             modelBuilder.Entity("ActiveControlApi.Models.Incidente", b =>
                 {
                     b.Property<int>("Id")
@@ -303,23 +396,52 @@ namespace ActiveControlApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CausaRaiz")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("DataAbertura")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DataInicioResolucao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DataPrazo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DataResolucao")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Descricao")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
-                    b.Property<string>("Severidade")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<int>("Prioridade")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Severidade")
+                        .HasColumnType("integer");
 
                     b.Property<int>("SolicitacaoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SolucaoAplicada")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("StatusIncidente")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UsuarioResponsavelId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SolicitacaoId")
                         .IsUnique();
+
+                    b.HasIndex("UsuarioResponsavelId");
 
                     b.ToTable("Incidente");
                 });
@@ -335,22 +457,53 @@ namespace ActiveControlApi.Migrations
                     b.Property<decimal?>("CustoEstimado")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal?>("CustoReal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("DataAgendada")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("DataCriacao")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("DataFechamento")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DataInicio")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DataPrazo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Observacoes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("Prioridade")
+                        .HasColumnType("integer");
+
                     b.Property<int>("SolicitacaoId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("SolucaoAplicada")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("StatusManutencao")
+                        .HasColumnType("integer");
+
                     b.Property<int>("TipoManutencao")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UsuarioResponsavelId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SolicitacaoId")
                         .IsUnique();
+
+                    b.HasIndex("UsuarioResponsavelId");
 
                     b.ToTable("Manutencao");
                 });
@@ -397,18 +550,32 @@ namespace ActiveControlApi.Migrations
                     b.Property<DateTime>("DataAbertura")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DataFechamento")
+                    b.Property<DateTime?>("DataFechamento")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DataPrazo")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descricao")
                         .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("Prioridade")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("StatusSolicitacao")
                         .HasColumnType("integer");
 
                     b.Property<int>("TipoSolicitacao")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("UsuarioResponsavelId")
                         .HasColumnType("integer");
 
                     b.Property<int>("UsuarioSolicitanteId")
@@ -417,6 +584,8 @@ namespace ActiveControlApi.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AtivoId");
+
+                    b.HasIndex("UsuarioResponsavelId");
 
                     b.HasIndex("UsuarioSolicitanteId");
 
@@ -445,6 +614,9 @@ namespace ActiveControlApi.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
 
                     b.Property<byte[]>("SenhaHash")
                         .IsRequired()
@@ -577,6 +749,25 @@ namespace ActiveControlApi.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("ActiveControlApi.Models.ComentarioSolicitacao", b =>
+                {
+                    b.HasOne("ActiveControlApi.Models.Solicitacao", "Solicitacao")
+                        .WithMany()
+                        .HasForeignKey("SolicitacaoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ActiveControlApi.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Solicitacao");
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("ActiveControlApi.Models.Departamento", b =>
                 {
                     b.HasOne("ActiveControlApi.Models.Empresa", "Empresa")
@@ -599,6 +790,43 @@ namespace ActiveControlApi.Migrations
                     b.Navigation("Solicitacao");
                 });
 
+            modelBuilder.Entity("ActiveControlApi.Models.HistoricoMovimentacao", b =>
+                {
+                    b.HasOne("ActiveControlApi.Models.Ativo", "Ativo")
+                        .WithMany()
+                        .HasForeignKey("AtivoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ActiveControlApi.Models.Departamento", "Departamento")
+                        .WithMany()
+                        .HasForeignKey("DepartamentoId");
+
+                    b.HasOne("ActiveControlApi.Models.Solicitacao", "Solicitacao")
+                        .WithMany()
+                        .HasForeignKey("SolicitacaoId");
+
+                    b.HasOne("ActiveControlApi.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId");
+
+                    b.HasOne("ActiveControlApi.Models.Usuario", "UsuarioResponsavel")
+                        .WithMany()
+                        .HasForeignKey("UsuarioResponsavelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ativo");
+
+                    b.Navigation("Departamento");
+
+                    b.Navigation("Solicitacao");
+
+                    b.Navigation("Usuario");
+
+                    b.Navigation("UsuarioResponsavel");
+                });
+
             modelBuilder.Entity("ActiveControlApi.Models.Incidente", b =>
                 {
                     b.HasOne("ActiveControlApi.Models.Solicitacao", "Solicitacao")
@@ -607,7 +835,13 @@ namespace ActiveControlApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ActiveControlApi.Models.Usuario", "UsuarioResponsavel")
+                        .WithMany()
+                        .HasForeignKey("UsuarioResponsavelId");
+
                     b.Navigation("Solicitacao");
+
+                    b.Navigation("UsuarioResponsavel");
                 });
 
             modelBuilder.Entity("ActiveControlApi.Models.Manutencao", b =>
@@ -618,7 +852,13 @@ namespace ActiveControlApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ActiveControlApi.Models.Usuario", "UsuarioResponsavel")
+                        .WithMany()
+                        .HasForeignKey("UsuarioResponsavelId");
+
                     b.Navigation("Solicitacao");
+
+                    b.Navigation("UsuarioResponsavel");
                 });
 
             modelBuilder.Entity("ActiveControlApi.Models.Solicitacao", b =>
@@ -629,6 +869,10 @@ namespace ActiveControlApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ActiveControlApi.Models.Usuario", "UsuarioResponsavel")
+                        .WithMany()
+                        .HasForeignKey("UsuarioResponsavelId");
+
                     b.HasOne("ActiveControlApi.Models.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioSolicitanteId")
@@ -638,6 +882,8 @@ namespace ActiveControlApi.Migrations
                     b.Navigation("Ativo");
 
                     b.Navigation("Usuario");
+
+                    b.Navigation("UsuarioResponsavel");
                 });
 
             modelBuilder.Entity("ActiveControlApi.Models.UsuarioCargo", b =>

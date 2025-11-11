@@ -1,5 +1,6 @@
 using ActiveControlApi.DTO.Usuario;
 using ActiveControlApi.Services.Usuario;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
@@ -7,6 +8,7 @@ using Swashbuckle.Swagger.Annotations;
 namespace ActiveControlApi.Controllers.Usuarios
 {
     [ApiController]
+    [Authorize]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _service;

@@ -1,5 +1,6 @@
 using ActiveControlApi.DTO.CategoriaAtivo;
 using ActiveControlApi.Services.CategoriaAtivo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
@@ -7,6 +8,7 @@ using Swashbuckle.Swagger.Annotations;
 namespace ActiveControlApi.Controllers.Categorias
 {
     [ApiController]
+    [Authorize]
     public class CategoriaAtivoController : ControllerBase
     {
         private readonly ICategoriaAtivoService _service;

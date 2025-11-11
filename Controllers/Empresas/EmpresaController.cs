@@ -1,5 +1,6 @@
 ﻿using ActiveControlApi.DTO.Empresas;
 using ActiveControlApi.Services.Empresa;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
@@ -8,6 +9,7 @@ namespace ActiveControlApi.Controllers.Empresas
 {
     //[Route("v1/[controller]")]
     [ApiController]
+    [Authorize]
     public class EmpresaController : ControllerBase
     {
 

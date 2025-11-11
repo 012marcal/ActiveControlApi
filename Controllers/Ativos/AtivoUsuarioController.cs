@@ -1,11 +1,13 @@
 using ActiveControlApi.DTO.AtivoUsuario;
 using ActiveControlApi.Services.AtivoUsuario;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActiveControlApi.Controllers.Ativos
 {
     [ApiController]
+    [Authorize]
     public class AtivoUsuarioController : ControllerBase
     {
         private readonly IAtivoUsuarioService _service;

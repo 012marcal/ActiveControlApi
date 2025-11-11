@@ -1,11 +1,13 @@
 using ActiveControlApi.DTO.AtivoDepartamento;
 using ActiveControlApi.Services.AtivoDepartamento;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActiveControlApi.Controllers.Ativos
 {
     [ApiController]
+    [Authorize]
     public class AtivoDepartamentoController : ControllerBase
     {
         private readonly IAtivoDepartamentoService _service;

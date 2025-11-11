@@ -19,6 +19,8 @@ namespace ActiveControlApi.Repositories
         IUsuarioRepository Usuario { get; }
         IUsuarioCargoRepository UsuarioCargo { get; }
         IUsuarioDepartamentoRepository UsuarioDepartamento { get; }
+        IHistoricoMovimentacaoRepository HistoricoMovimentacao { get; }
+        IComentarioSolicitacaoRepository ComentarioSolicitacao { get; }
 
 
         Task<int> CommitAsync();

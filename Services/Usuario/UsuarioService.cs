@@ -44,7 +44,8 @@ namespace ActiveControlApi.Services.Usuario
                 Cpf = SomenteDigitos(dto.Cpf),
                 Email = dto.Email,
                 SenhaHash = hash,
-                SenhaSalt = salt
+                SenhaSalt = salt,
+                Role = dto.Role
             };
 
             var created = _uow.Usuario.Create(entity);

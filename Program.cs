@@ -9,9 +9,18 @@ using ActiveControlApi.Services.ModeloAtivo;
 using ActiveControlApi.Services.Usuario;
 using ActiveControlApi.Services.AtivoUsuario;
 using ActiveControlApi.Services.AtivoDepartamento;
+using ActiveControlApi.Services.Solicitacao;
+using ActiveControlApi.Services.Manutencao;
+using ActiveControlApi.Services.Incidente;
+using ActiveControlApi.Services.Devolucao;
+using ActiveControlApi.Services.Auth;
+using ActiveControlApi.Services.Historico;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models; // Necess�rio para OpenApiInfo
-using Swashbuckle.AspNetCore.Annotations; // Adicionar este using para EnableAnnotations()
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,18 +28,69 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// Configurar JWT
+var jwtSecretKey = builder.Configuration["Jwt:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey não configurada");
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer não configurado");
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience não configurado");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecretKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
+
 builder.Services.AddSwaggerGen(c =>
 {
-    
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Active Control API",
         Version = "v1",
-        Description = "API para o sistema Active Control. Permite gerenciar ativos, departamentos e solicita��es em tempo real."
+        Description = "API para o sistema Active Control. Permite gerenciar ativos, departamentos e solicitações em tempo real."
     });
 
-    
-    c.EnableAnnotations(); 
+    c.EnableAnnotations();
+
+    // Configurar Swagger para suportar JWT
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header usando o esquema Bearer. Exemplo: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 
@@ -59,9 +119,11 @@ builder.Services.AddScoped<ISolicitacaoRepository, SolicitacaoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioCargoRepository, UsuarioCargoRepository>();
 builder.Services.AddScoped<IUsuarioDepartamentoRepository, UsuarioDepartamentoRepository>();
+builder.Services.AddScoped<IHistoricoMovimentacaoRepository, HistoricoMovimentacaoRepository>();
+builder.Services.AddScoped<IComentarioSolicitacaoRepository, ComentarioSolicitacaoRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-//SERVI�OS >
+//SERVIOS >
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<IAtivoService, AtivoService>();
 builder.Services.AddScoped<IDepartamentoService, DepartamentoService>();
@@ -70,6 +132,12 @@ builder.Services.AddScoped<IModeloAtivoService, ModeloAtivoService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IAtivoUsuarioService, AtivoUsuarioService>();
 builder.Services.AddScoped<IAtivoDepartamentoService, AtivoDepartamentoService>();
+builder.Services.AddScoped<ISolicitacaoService, SolicitacaoService>();
+builder.Services.AddScoped<IManutencaoService, ManutencaoService>();
+builder.Services.AddScoped<IIncidenteService, IncidenteService>();
+builder.Services.AddScoped<IDevolucaoService, DevolucaoService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IHistoricoService, HistoricoService>();
 
 
 var app = builder.Build();
@@ -86,6 +154,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

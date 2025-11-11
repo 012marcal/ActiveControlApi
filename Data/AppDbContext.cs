@@ -26,6 +26,8 @@ namespace ActiveControlApi.Data
         public DbSet<Usuario> Usuario   { get; set; }
         public DbSet<UsuarioCargo> UsuarioCargo { get; set; }
         public DbSet<UsuarioDepartamento> UsuarioDepartamento { get; set; }
+        public DbSet<HistoricoMovimentacao> HistoricoMovimentacao { get; set; }
+        public DbSet<ComentarioSolicitacao> ComentarioSolicitacao { get; set; }
 
 
 

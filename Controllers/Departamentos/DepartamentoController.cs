@@ -1,5 +1,6 @@
 using ActiveControlApi.DTO.Departamento;
 using ActiveControlApi.Services.Departamento;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
@@ -7,6 +8,7 @@ using Swashbuckle.Swagger.Annotations;
 namespace ActiveControlApi.Controllers.Departamentos
 {
     [ApiController]
+    [Authorize]
     public class DepartamentoController : ControllerBase
     {
         private readonly IDepartamentoService _service;

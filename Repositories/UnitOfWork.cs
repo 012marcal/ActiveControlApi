@@ -26,6 +26,8 @@ namespace ActiveControlApi.Repositories
         private IUsuarioRepository _usuario;
         private IUsuarioCargoRepository _usuarioCargo;
         private IUsuarioDepartamentoRepository _usuarioDepartamento;
+        private IHistoricoMovimentacaoRepository _historicoMovimentacao;
+        private IComentarioSolicitacaoRepository _comentarioSolicitacao;
 
         public IAtivoRepository Ativo
             => _ativo ??= new AtivoRepository(_context);
@@ -71,6 +73,13 @@ namespace ActiveControlApi.Repositories
 
         public IUsuarioDepartamentoRepository UsuarioDepartamento
             => _usuarioDepartamento ??= new UsuarioDepartamentoRepository(_context);
+
+        public IHistoricoMovimentacaoRepository HistoricoMovimentacao
+            => _historicoMovimentacao ??= new HistoricoMovimentacaoRepository(_context);
+
+        public IComentarioSolicitacaoRepository ComentarioSolicitacao
+            => _comentarioSolicitacao ??= new ComentarioSolicitacaoRepository(_context);
+
         public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
 
         public void Dispose() => _context.Dispose();
