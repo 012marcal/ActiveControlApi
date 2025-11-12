@@ -3,7 +3,7 @@ using ActiveControlApi.Services.CategoriaAtivo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.Swagger.Annotations;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ActiveControlApi.Controllers.Categorias
 {
@@ -20,7 +20,9 @@ namespace ActiveControlApi.Controllers.Categorias
 
         [HttpPost]
         [Route("v1/CategoriaAtivo")]
-        [SwaggerOperation("Adicionar Categoria de Ativo")]
+        [SwaggerOperation(Summary = "Criar uma nova Categoria de Ativo no sistema")]
+        [SwaggerResponse(StatusCodes.Status201Created, "Categoria criada com sucesso", typeof(CategoriaAtivoDTO))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao criar categoria")]
         public async Task<ActionResult<CategoriaAtivoDTO>> Adicionar([FromBody] CategoriaAtivoDTO dto)
         {
             try
@@ -36,6 +38,8 @@ namespace ActiveControlApi.Controllers.Categorias
 
         [HttpGet]
         [Route("v1/CategoriaAtivo")]
+        [SwaggerOperation(Summary = "Listar todas as Categorias de Ativo cadastradas")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Lista de categorias obtida com sucesso", typeof(IEnumerable<CategoriaAtivoDTO>))]
         public async Task<ActionResult<IEnumerable<CategoriaAtivoDTO>>> ObterTodos()
         {
             var itens = await _service.PegarTodas();
@@ -44,6 +48,9 @@ namespace ActiveControlApi.Controllers.Categorias
 
         [HttpGet]
         [Route("v1/CategoriaAtivo/{id:int}")]
+        [SwaggerOperation(Summary = "Obter uma Categoria de Ativo específica pelo seu identificador")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Categoria encontrada", typeof(CategoriaAtivoDTO))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Categoria não encontrada")]
         public async Task<ActionResult<CategoriaAtivoDTO>> ObterPorId(int id)
         {
             try
@@ -59,6 +66,10 @@ namespace ActiveControlApi.Controllers.Categorias
 
         [HttpPut]
         [Route("v1/CategoriaAtivo/{id:int}")]
+        [SwaggerOperation(Summary = "Atualizar informações de uma Categoria de Ativo existente")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Categoria atualizada com sucesso", typeof(CategoriaAtivoDTO))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Categoria não encontrada")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao atualizar categoria")]
         public async Task<ActionResult<CategoriaAtivoDTO>> Atualizar(int id, [FromBody] CategoriaAtivoDTO dto)
         {
             try
@@ -78,6 +89,10 @@ namespace ActiveControlApi.Controllers.Categorias
 
         [HttpDelete]
         [Route("v1/CategoriaAtivo/{id:int}")]
+        [SwaggerOperation(Summary = "Remover uma Categoria de Ativo do sistema")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Categoria removida com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Categoria não encontrada")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao remover categoria")]
         public async Task<IActionResult> Remover(int id)
         {
             try

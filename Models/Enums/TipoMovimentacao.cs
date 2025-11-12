@@ -13,7 +13,9 @@ namespace ActiveControlApi.Models.Enums
         AlteracaoValor = 9,
         CriacaoSolicitacao = 10,
         AtualizacaoSolicitacao = 11,
-        FinalizacaoSolicitacao = 12
+        FinalizacaoSolicitacao = 12,
+        AtribuicaoCargo = 13,
+        AtribuicaoDepartamento = 14
     }
 }
 

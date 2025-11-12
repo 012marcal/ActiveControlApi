@@ -21,7 +21,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpPost]
         [Route("v1/Solicitacao")]
-        [SwaggerOperation("Adicionar uma Solicitação")]
+        [SwaggerOperation(Summary = "Adicionar uma Solicitação")]
         [SwaggerResponse(StatusCodes.Status201Created, "Solicitação criada", typeof(SolicitacaoDTO))]
         public async Task<ActionResult<SolicitacaoDTO>> Adicionar([FromBody] SolicitacaoDTO dto)
         {
@@ -38,7 +38,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao")]
-        [SwaggerOperation("Listar Solicitações")]
+        [SwaggerOperation(Summary = "Listar Solicitações")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Solicitações", typeof(IEnumerable<SolicitacaoDTO>))]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> ObterTodos()
         {
@@ -48,7 +48,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/{id:int}")]
-        [SwaggerOperation("Obter Solicitação por Id")]
+        [SwaggerOperation(Summary = "Obter Solicitação por Id")]
         [SwaggerResponse(StatusCodes.Status200OK, "Solicitação", typeof(SolicitacaoDTO))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Não encontrado")]
         public async Task<ActionResult<SolicitacaoDTO>> ObterPorId(int id)
@@ -66,7 +66,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpPut]
         [Route("v1/Solicitacao/{id:int}")]
-        [SwaggerOperation("Atualizar Solicitação")]
+        [SwaggerOperation(Summary = "Atualizar Solicitação")]
         public async Task<ActionResult<SolicitacaoDTO>> Atualizar(int id, [FromBody] SolicitacaoDTO dto)
         {
             try
@@ -86,7 +86,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpDelete]
         [Route("v1/Solicitacao/{id:int}")]
-        [SwaggerOperation("Remover Solicitação")]
+        [SwaggerOperation(Summary = "Remover Solicitação")]
         public async Task<IActionResult> Remover(int id)
         {
             try
@@ -105,7 +105,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
         // Filtros avançados
         [HttpGet]
         [Route("v1/Solicitacao/Status/{status}")]
-        [SwaggerOperation("Buscar solicitações por status")]
+        [SwaggerOperation(Summary = "Buscar solicitações por status")]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> BuscarPorStatus(StatusSolicitacao status)
         {
             var itens = await _solicitacaoService.BuscarPorStatus(status);
@@ -114,7 +114,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/Tipo/{tipo}")]
-        [SwaggerOperation("Buscar solicitações por tipo")]
+        [SwaggerOperation(Summary = "Buscar solicitações por tipo")]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> BuscarPorTipo(TipoSolicitacao tipo)
         {
             var itens = await _solicitacaoService.BuscarPorTipo(tipo);
@@ -123,7 +123,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/Prioridade/{prioridade}")]
-        [SwaggerOperation("Buscar solicitações por prioridade")]
+        [SwaggerOperation(Summary = "Buscar solicitações por prioridade")]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> BuscarPorPrioridade(PrioridadeSolicitacao prioridade)
         {
             var itens = await _solicitacaoService.BuscarPorPrioridade(prioridade);
@@ -132,7 +132,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/Usuario/{usuarioId}")]
-        [SwaggerOperation("Buscar solicitações de um usuário solicitante")]
+        [SwaggerOperation(Summary = "Buscar solicitações de um usuário solicitante")]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> BuscarPorUsuario(int usuarioId)
         {
             var itens = await _solicitacaoService.BuscarPorUsuarioSolicitante(usuarioId);
@@ -141,7 +141,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/Responsavel/{usuarioId}")]
-        [SwaggerOperation("Buscar solicitações atribuídas a um responsável")]
+        [SwaggerOperation(Summary = "Buscar solicitações atribuídas a um responsável")]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> BuscarPorResponsavel(int usuarioId)
         {
             var itens = await _solicitacaoService.BuscarPorUsuarioResponsavel(usuarioId);
@@ -150,7 +150,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/Ativo/{ativoId}")]
-        [SwaggerOperation("Buscar solicitações de um ativo")]
+        [SwaggerOperation(Summary = "Buscar solicitações de um ativo")]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> BuscarPorAtivo(int ativoId)
         {
             var itens = await _solicitacaoService.BuscarPorAtivo(ativoId);
@@ -159,7 +159,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/Atrasadas")]
-        [SwaggerOperation("Buscar solicitações atrasadas")]
+        [SwaggerOperation(Summary = "Buscar solicitações atrasadas")]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> BuscarAtrasadas()
         {
             var itens = await _solicitacaoService.BuscarAtrasadas();
@@ -168,7 +168,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/Periodo")]
-        [SwaggerOperation("Buscar solicitações por período")]
+        [SwaggerOperation(Summary = "Buscar solicitações por período")]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> BuscarPorPeriodo(
             [FromQuery] DateTime dataInicio,
             [FromQuery] DateTime dataFim)
@@ -179,7 +179,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/Minhas/{usuarioId}")]
-        [SwaggerOperation("Buscar minhas solicitações")]
+        [SwaggerOperation(Summary = "Buscar minhas solicitações")]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> BuscarMinhasSolicitacoes(int usuarioId)
         {
             var itens = await _solicitacaoService.BuscarMinhasSolicitacoes(usuarioId);
@@ -188,7 +188,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/Atribuidas/{usuarioId}")]
-        [SwaggerOperation("Buscar solicitações atribuídas a mim")]
+        [SwaggerOperation(Summary = "Buscar solicitações atribuídas a mim")]
         public async Task<ActionResult<IEnumerable<SolicitacaoDTO>>> BuscarSolicitacoesAtribuidas(int usuarioId)
         {
             var itens = await _solicitacaoService.BuscarSolicitacoesAtribuidas(usuarioId);
@@ -198,7 +198,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
         // Workflow
         [HttpPost]
         [Route("v1/Solicitacao/{id:int}/Atribuir")]
-        [SwaggerOperation("Atribuir responsável à solicitação")]
+        [SwaggerOperation(Summary = "Atribuir responsável à solicitação")]
         public async Task<ActionResult<SolicitacaoDTO>> AtribuirResponsavel(int id, [FromBody] int usuarioResponsavelId)
         {
             try
@@ -218,7 +218,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpPost]
         [Route("v1/Solicitacao/{id:int}/Iniciar")]
-        [SwaggerOperation("Iniciar atendimento da solicitação")]
+        [SwaggerOperation(Summary = "Iniciar atendimento da solicitação")]
         public async Task<ActionResult<SolicitacaoDTO>> IniciarAtendimento(int id)
         {
             try
@@ -238,7 +238,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpPost]
         [Route("v1/Solicitacao/{id:int}/Finalizar")]
-        [SwaggerOperation("Finalizar solicitação")]
+        [SwaggerOperation(Summary = "Finalizar solicitação")]
         public async Task<ActionResult<SolicitacaoDTO>> Finalizar(int id, [FromBody] string? observacao = null)
         {
             try
@@ -258,7 +258,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpPost]
         [Route("v1/Solicitacao/{id:int}/Cancelar")]
-        [SwaggerOperation("Cancelar solicitação")]
+        [SwaggerOperation(Summary = "Cancelar solicitação")]
         public async Task<ActionResult<SolicitacaoDTO>> Cancelar(int id, [FromBody] string? motivo = null)
         {
             try
@@ -278,7 +278,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpPut]
         [Route("v1/Solicitacao/{id:int}/Prioridade")]
-        [SwaggerOperation("Alterar prioridade da solicitação")]
+        [SwaggerOperation(Summary = "Alterar prioridade da solicitação")]
         public async Task<ActionResult<SolicitacaoDTO>> AlterarPrioridade(int id, [FromBody] PrioridadeSolicitacao prioridade)
         {
             try
@@ -295,7 +295,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
         // Relatórios
         [HttpGet]
         [Route("v1/Solicitacao/Estatisticas")]
-        [SwaggerOperation("Obter estatísticas de solicitações")]
+        [SwaggerOperation(Summary = "Obter estatísticas de solicitações")]
         public async Task<ActionResult<Dictionary<string, object>>> ObterEstatisticas()
         {
             var stats = await _solicitacaoService.ObterEstatisticas();
@@ -304,7 +304,7 @@ namespace ActiveControlApi.Controllers.Solicitacoes
 
         [HttpGet]
         [Route("v1/Solicitacao/Estatisticas/Periodo")]
-        [SwaggerOperation("Obter estatísticas por período")]
+        [SwaggerOperation(Summary = "Obter estatísticas por período")]
         public async Task<ActionResult<Dictionary<string, object>>> ObterEstatisticasPorPeriodo(
             [FromQuery] DateTime dataInicio,
             [FromQuery] DateTime dataFim)

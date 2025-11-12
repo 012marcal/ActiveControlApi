@@ -2,7 +2,7 @@ using ActiveControlApi.DTO.Auth;
 using ActiveControlApi.Services.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.Swagger.Annotations;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ActiveControlApi.Controllers.Auth
 {
@@ -18,7 +18,7 @@ namespace ActiveControlApi.Controllers.Auth
 
         [HttpPost]
         [Route("v1/Auth/Login")]
-        [SwaggerOperation("Realizar Login")]
+        [SwaggerOperation(Summary = "Realizar Login")]
         [SwaggerResponse(StatusCodes.Status200OK, "Login realizado com sucesso", typeof(TokenDTO))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Credenciais inválidas")]
         public async Task<ActionResult<TokenDTO>> Login([FromBody] LoginDTO loginDTO)

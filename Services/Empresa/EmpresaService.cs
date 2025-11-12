@@ -1,4 +1,5 @@
 ﻿using ActiveControlApi.DTO.Empresas;
+using ActiveControlApi.DTO.Departamento;
 using ActiveControlApi.DTO.MappingExtensions;
 using ActiveControlApi.Models;
 using ActiveControlApi.Repositories;
@@ -214,12 +215,27 @@ namespace ActiveControlApi.Services.Empresa
                 var linhasAfetadas = await _uow.CommitAsync();
                 return linhasAfetadas > 0;
             }
-            catch (Exception ex) 
+            catch (Exception) 
             {
                 return false;
-            
             }
 
+        }
+
+        public async Task<IEnumerable<DepartamentoDTO>> ObterDepartamentosPorEmpresa(int empresaId)
+        {
+            // Verificar se a empresa existe
+            var empresa = await _uow.Empresa.Get(e => e.Id == empresaId);
+            if (empresa == null)
+                throw new KeyNotFoundException($"Empresa com id {empresaId} não encontrada.");
+
+            // Buscar departamentos da empresa
+            var departamentos = await _uow.Departamento.GetAll(d => d.EmpresaId == empresaId);
+            
+            if (!departamentos.Any())
+                return Enumerable.Empty<DepartamentoDTO>();
+
+            return departamentos.ParaListaDepartamentoDto();
         }
 
 

@@ -4,7 +4,7 @@ using ActiveControlApi.Services.Ativo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.Swagger.Annotations;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ActiveControlApi.Controllers.Ativos
 {
@@ -21,7 +21,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpPost]
         [Route("v1/Ativo")]
-        [SwaggerOperation("Adicionar um Ativo")]
+        [SwaggerOperation(Summary = "Adicionar um Ativo")]
         [SwaggerResponse(StatusCodes.Status201Created, "Ativo criado", typeof(AtivoDTO))]
         public async Task<ActionResult<AtivoDTO>> Adicionar([FromBody] AtivoDTO dto)
         {
@@ -38,7 +38,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpGet]
         [Route("v1/Ativo")]
-        [SwaggerOperation("Listar Ativos")]
+        [SwaggerOperation(Summary = "Listar Ativos")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Ativos", typeof(IEnumerable<AtivoDTO>))]
         public async Task<ActionResult<IEnumerable<AtivoDTO>>> ObterTodos()
         {
@@ -47,8 +47,18 @@ namespace ActiveControlApi.Controllers.Ativos
         }
 
         [HttpGet]
+        [Route("v1/Ativo/Paginado")]
+        [SwaggerOperation(Summary = "Listar Ativos de forma paginada para melhor performance em grandes volumes de dados")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Lista paginada de ativos obtida com sucesso", typeof(object))]
+        public async Task<ActionResult<object>> ObterPaginado([FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 10)
+        {
+            var (itens, total) = await _ativoService.PegarPaginado(pagina, tamanhoPagina);
+            return Ok(new { total, pagina, tamanhoPagina, itens });
+        }
+
+        [HttpGet]
         [Route("v1/Ativo/{id:int}")]
-        [SwaggerOperation("Obter Ativo por Id")]
+        [SwaggerOperation(Summary = "Obter Ativo por Id")]
         [SwaggerResponse(StatusCodes.Status200OK, "Ativo", typeof(AtivoDTO))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Não encontrado")]
         public async Task<ActionResult<AtivoDTO>> ObterPorId(int id)
@@ -66,7 +76,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpPut]
         [Route("v1/Ativo/{id:int}")]
-        [SwaggerOperation("Atualizar Ativo")]
+        [SwaggerOperation(Summary = "Atualizar Ativo")]
         public async Task<ActionResult<AtivoDTO>> Atualizar(int id, [FromBody] AtivoDTO dto)
         {
             try
@@ -86,7 +96,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpDelete]
         [Route("v1/Ativo/{id:int}")]
-        [SwaggerOperation("Remover Ativo")]
+        [SwaggerOperation(Summary = "Remover Ativo")]
         public async Task<IActionResult> Remover(int id)
         {
             try
@@ -109,7 +119,7 @@ namespace ActiveControlApi.Controllers.Ativos
         // Consultas avançadas
         [HttpGet]
         [Route("v1/Ativo/status/{status}")]
-        [SwaggerOperation("Buscar Ativos por Status")]
+        [SwaggerOperation(Summary = "Buscar Ativos por Status")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Ativos", typeof(IEnumerable<AtivoDTO>))]
         public async Task<ActionResult<IEnumerable<AtivoDTO>>> BuscarPorStatus(statusAtivo status)
         {
@@ -119,7 +129,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpGet]
         [Route("v1/Ativo/categoria/{categoriaId:int}")]
-        [SwaggerOperation("Buscar Ativos por Categoria")]
+        [SwaggerOperation(Summary = "Buscar Ativos por Categoria")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Ativos", typeof(IEnumerable<AtivoDTO>))]
         public async Task<ActionResult<IEnumerable<AtivoDTO>>> BuscarPorCategoria(int categoriaId)
         {
@@ -129,7 +139,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpGet]
         [Route("v1/Ativo/modelo/{modeloId:int}")]
-        [SwaggerOperation("Buscar Ativos por Modelo")]
+        [SwaggerOperation(Summary = "Buscar Ativos por Modelo")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Ativos", typeof(IEnumerable<AtivoDTO>))]
         public async Task<ActionResult<IEnumerable<AtivoDTO>>> BuscarPorModelo(int modeloId)
         {
@@ -139,7 +149,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpGet]
         [Route("v1/Ativo/disponiveis")]
-        [SwaggerOperation("Buscar Ativos Disponíveis")]
+        [SwaggerOperation(Summary = "Buscar Ativos Disponíveis")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Ativos Disponíveis", typeof(IEnumerable<AtivoDTO>))]
         public async Task<ActionResult<IEnumerable<AtivoDTO>>> BuscarDisponiveis()
         {
@@ -149,7 +159,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpGet]
         [Route("v1/Ativo/manutencao")]
-        [SwaggerOperation("Buscar Ativos em Manutenção")]
+        [SwaggerOperation(Summary = "Buscar Ativos em Manutenção")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Ativos em Manutenção", typeof(IEnumerable<AtivoDTO>))]
         public async Task<ActionResult<IEnumerable<AtivoDTO>>> BuscarEmManutencao()
         {
@@ -159,7 +169,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpGet]
         [Route("v1/Ativo/patrimonio/{numPatrimonio}")]
-        [SwaggerOperation("Buscar Ativo por Número de Patrimônio")]
+        [SwaggerOperation(Summary = "Buscar Ativo por Número de Patrimônio")]
         [SwaggerResponse(StatusCodes.Status200OK, "Ativo", typeof(AtivoDTO))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Não encontrado")]
         public async Task<ActionResult<AtivoDTO>> BuscarPorNumeroPatrimonio(string numPatrimonio)
@@ -177,7 +187,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpGet]
         [Route("v1/Ativo/serie/{numSerie}")]
-        [SwaggerOperation("Buscar Ativo por Número de Série")]
+        [SwaggerOperation(Summary = "Buscar Ativo por Número de Série")]
         [SwaggerResponse(StatusCodes.Status200OK, "Ativo", typeof(AtivoDTO))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Não encontrado")]
         public async Task<ActionResult<AtivoDTO>> BuscarPorNumeroSerie(string numSerie)
@@ -195,7 +205,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpGet]
         [Route("v1/Ativo/usuario/{usuarioId:int}")]
-        [SwaggerOperation("Buscar Ativos por Usuário")]
+        [SwaggerOperation(Summary = "Buscar Ativos por Usuário")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Ativos", typeof(IEnumerable<AtivoDTO>))]
         public async Task<ActionResult<IEnumerable<AtivoDTO>>> BuscarPorUsuario(int usuarioId)
         {
@@ -205,7 +215,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpGet]
         [Route("v1/Ativo/departamento/{departamentoId:int}")]
-        [SwaggerOperation("Buscar Ativos por Departamento")]
+        [SwaggerOperation(Summary = "Buscar Ativos por Departamento")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Ativos", typeof(IEnumerable<AtivoDTO>))]
         public async Task<ActionResult<IEnumerable<AtivoDTO>>> BuscarPorDepartamento(int departamentoId)
         {
@@ -216,7 +226,7 @@ namespace ActiveControlApi.Controllers.Ativos
         // Depreciação
         [HttpGet]
         [Route("v1/Ativo/{id:int}/depreciacao")]
-        [SwaggerOperation("Calcular Depreciação do Ativo")]
+        [SwaggerOperation(Summary = "Calcular Depreciação do Ativo")]
         [SwaggerResponse(StatusCodes.Status200OK, "Valor Depreciado")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Não encontrado")]
         public async Task<ActionResult<object>> CalcularDepreciacao(int id)
@@ -234,7 +244,7 @@ namespace ActiveControlApi.Controllers.Ativos
 
         [HttpGet]
         [Route("v1/Ativo/vencimento")]
-        [SwaggerOperation("Listar Ativos Próximos ao Vencimento da Vida Útil")]
+        [SwaggerOperation(Summary = "Listar Ativos Próximos ao Vencimento da Vida Útil")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Ativos", typeof(IEnumerable<AtivoDTO>))]
         public async Task<ActionResult<IEnumerable<AtivoDTO>>> ListarProximosVencimento([FromQuery] int mesesAntecedencia = 6)
         {
@@ -245,7 +255,7 @@ namespace ActiveControlApi.Controllers.Ativos
         // Relatórios
         [HttpGet]
         [Route("v1/Ativo/estatisticas")]
-        [SwaggerOperation("Obter Estatísticas dos Ativos")]
+        [SwaggerOperation(Summary = "Obter Estatísticas dos Ativos")]
         [SwaggerResponse(StatusCodes.Status200OK, "Estatísticas")]
         public async Task<ActionResult<object>> ObterEstatisticas()
         {

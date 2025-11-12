@@ -1,27 +1,27 @@
-using ActiveControlApi.DTO.Departamento;
-using ActiveControlApi.Services.Departamento;
+using ActiveControlApi.DTO.Cargo;
+using ActiveControlApi.Services.Cargo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace ActiveControlApi.Controllers.Departamentos
+namespace ActiveControlApi.Controllers.Cargos
 {
     [ApiController]
     [Authorize]
-    public class DepartamentoController : ControllerBase
+    public class CargoController : ControllerBase
     {
-        private readonly IDepartamentoService _service;
+        private readonly ICargoService _service;
 
-        public DepartamentoController(IDepartamentoService service)
+        public CargoController(ICargoService service)
         {
             _service = service;
         }
 
         [HttpPost]
-        [Route("v1/Departamento")]
-        [SwaggerOperation(Summary = "Adicionar Departamento")]
-        public async Task<ActionResult<DepartamentoDTO>> Adicionar([FromBody] DepartamentoDTO dto)
+        [Route("v1/Cargo")]
+        [SwaggerOperation(Summary = "Adicionar Cargo")]
+        public async Task<ActionResult<CargoDTO>> Adicionar([FromBody] CriarCargoDTO dto)
         {
             try
             {
@@ -35,18 +35,18 @@ namespace ActiveControlApi.Controllers.Departamentos
         }
 
         [HttpGet]
-        [Route("v1/Departamento")]
-        [SwaggerOperation(Summary = "Listar Departamentos")]
-        public async Task<ActionResult<IEnumerable<DepartamentoDTO>>> ObterTodos()
+        [Route("v1/Cargo")]
+        [SwaggerOperation(Summary = "Listar Cargos")]
+        public async Task<ActionResult<IEnumerable<CargoDTO>>> ObterTodos()
         {
             var itens = await _service.PegarTodos();
             return Ok(itens);
         }
 
         [HttpGet]
-        [Route("v1/Departamento/{id:int}")]
-        [SwaggerOperation(Summary = "Obter Departamento por Id")]
-        public async Task<ActionResult<DepartamentoDTO>> ObterPorId(int id)
+        [Route("v1/Cargo/{id:int}")]
+        [SwaggerOperation(Summary = "Obter Cargo por Id")]
+        public async Task<ActionResult<CargoDTO>> ObterPorId(int id)
         {
             try
             {
@@ -60,9 +60,9 @@ namespace ActiveControlApi.Controllers.Departamentos
         }
 
         [HttpPut]
-        [Route("v1/Departamento/{id:int}")]
-        [SwaggerOperation(Summary = "Atualizar Departamento")]
-        public async Task<ActionResult<DepartamentoDTO>> Atualizar(int id, [FromBody] DepartamentoDTO dto)
+        [Route("v1/Cargo/{id:int}")]
+        [SwaggerOperation(Summary = "Atualizar Cargo")]
+        public async Task<ActionResult<CargoDTO>> Atualizar(int id, [FromBody] AtualizarCargoDTO dto)
         {
             try
             {
@@ -80,8 +80,8 @@ namespace ActiveControlApi.Controllers.Departamentos
         }
 
         [HttpDelete]
-        [Route("v1/Departamento/{id:int}")]
-        [SwaggerOperation(Summary = "Remover Departamento")]
+        [Route("v1/Cargo/{id:int}")]
+        [SwaggerOperation(Summary = "Remover Cargo")]
         public async Task<IActionResult> Remover(int id)
         {
             try
@@ -94,6 +94,10 @@ namespace ActiveControlApi.Controllers.Departamentos
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

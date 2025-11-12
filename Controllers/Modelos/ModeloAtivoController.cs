@@ -3,7 +3,7 @@ using ActiveControlApi.Services.ModeloAtivo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.Swagger.Annotations;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ActiveControlApi.Controllers.Modelos
 {
@@ -20,7 +20,9 @@ namespace ActiveControlApi.Controllers.Modelos
 
         [HttpPost]
         [Route("v1/ModeloAtivo")]
-        [SwaggerOperation("Adicionar Modelo de Ativo")]
+        [SwaggerOperation(Summary = "Criar um novo Modelo de Ativo no sistema")]
+        [SwaggerResponse(StatusCodes.Status201Created, "Modelo criado com sucesso", typeof(ModeloAtivoDTO))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao criar modelo")]
         public async Task<ActionResult<ModeloAtivoDTO>> Adicionar([FromBody] ModeloAtivoDTO dto)
         {
             try
@@ -36,6 +38,8 @@ namespace ActiveControlApi.Controllers.Modelos
 
         [HttpGet]
         [Route("v1/ModeloAtivo")]
+        [SwaggerOperation(Summary = "Listar todos os Modelos de Ativo cadastrados")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Lista de modelos obtida com sucesso", typeof(IEnumerable<ModeloAtivoDTO>))]
         public async Task<ActionResult<IEnumerable<ModeloAtivoDTO>>> ObterTodos()
         {
             var itens = await _service.PegarTodos();
@@ -44,6 +48,9 @@ namespace ActiveControlApi.Controllers.Modelos
 
         [HttpGet]
         [Route("v1/ModeloAtivo/{id:int}")]
+        [SwaggerOperation(Summary = "Obter um Modelo de Ativo específico pelo seu identificador")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Modelo encontrado", typeof(ModeloAtivoDTO))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Modelo não encontrado")]
         public async Task<ActionResult<ModeloAtivoDTO>> ObterPorId(int id)
         {
             try
@@ -59,6 +66,10 @@ namespace ActiveControlApi.Controllers.Modelos
 
         [HttpPut]
         [Route("v1/ModeloAtivo/{id:int}")]
+        [SwaggerOperation(Summary = "Atualizar informações de um Modelo de Ativo existente")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Modelo atualizado com sucesso", typeof(ModeloAtivoDTO))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Modelo não encontrado")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao atualizar modelo")]
         public async Task<ActionResult<ModeloAtivoDTO>> Atualizar(int id, [FromBody] ModeloAtivoDTO dto)
         {
             try
@@ -78,6 +89,10 @@ namespace ActiveControlApi.Controllers.Modelos
 
         [HttpDelete]
         [Route("v1/ModeloAtivo/{id:int}")]
+        [SwaggerOperation(Summary = "Remover um Modelo de Ativo do sistema")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Modelo removido com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Modelo não encontrado")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao remover modelo")]
         public async Task<IActionResult> Remover(int id)
         {
             try

@@ -21,7 +21,7 @@ namespace ActiveControlApi.Controllers.Historico
         }
 
         [HttpGet]
-        [SwaggerOperation("Obter todo o histórico de movimentações")]
+        [SwaggerOperation(Summary = "Obter todo o histórico de movimentações")]
         [SwaggerResponse(StatusCodes.Status200OK, "Histórico obtido com sucesso", typeof(IEnumerable<HistoricoMovimentacaoDTO>))]
         public async Task<ActionResult<IEnumerable<HistoricoMovimentacaoDTO>>> ObterTodos()
         {
@@ -30,7 +30,7 @@ namespace ActiveControlApi.Controllers.Historico
         }
 
         [HttpGet("{id}")]
-        [SwaggerOperation("Obter histórico por ID")]
+        [SwaggerOperation(Summary = "Obter histórico por ID")]
         [SwaggerResponse(StatusCodes.Status200OK, "Histórico obtido com sucesso", typeof(HistoricoMovimentacaoDTO))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Histórico não encontrado")]
         public async Task<ActionResult<HistoricoMovimentacaoDTO>> ObterPorId(int id)
@@ -47,7 +47,7 @@ namespace ActiveControlApi.Controllers.Historico
         }
 
         [HttpGet("Ativo/{ativoId}")]
-        [SwaggerOperation("Obter histórico de movimentações de um ativo específico")]
+        [SwaggerOperation(Summary = "Obter histórico de movimentações de um ativo específico")]
         [SwaggerResponse(StatusCodes.Status200OK, "Histórico obtido com sucesso", typeof(IEnumerable<HistoricoMovimentacaoDTO>))]
         public async Task<ActionResult<IEnumerable<HistoricoMovimentacaoDTO>>> ObterPorAtivo(int ativoId)
         {
@@ -56,7 +56,7 @@ namespace ActiveControlApi.Controllers.Historico
         }
 
         [HttpGet("Usuario/{usuarioId}")]
-        [SwaggerOperation("Obter histórico de movimentações de um usuário específico")]
+        [SwaggerOperation(Summary = "Obter histórico de movimentações de um usuário específico")]
         [SwaggerResponse(StatusCodes.Status200OK, "Histórico obtido com sucesso", typeof(IEnumerable<HistoricoMovimentacaoDTO>))]
         public async Task<ActionResult<IEnumerable<HistoricoMovimentacaoDTO>>> ObterPorUsuario(int usuarioId)
         {
@@ -65,7 +65,7 @@ namespace ActiveControlApi.Controllers.Historico
         }
 
         [HttpGet("Tipo/{tipo}")]
-        [SwaggerOperation("Obter histórico por tipo de movimentação")]
+        [SwaggerOperation(Summary = "Obter histórico por tipo de movimentação")]
         [SwaggerResponse(StatusCodes.Status200OK, "Histórico obtido com sucesso", typeof(IEnumerable<HistoricoMovimentacaoDTO>))]
         public async Task<ActionResult<IEnumerable<HistoricoMovimentacaoDTO>>> ObterPorTipo(TipoMovimentacao tipo)
         {
@@ -74,7 +74,7 @@ namespace ActiveControlApi.Controllers.Historico
         }
 
         [HttpGet("Periodo")]
-        [SwaggerOperation("Obter histórico por período")]
+        [SwaggerOperation(Summary = "Obter histórico por período")]
         [SwaggerResponse(StatusCodes.Status200OK, "Histórico obtido com sucesso", typeof(IEnumerable<HistoricoMovimentacaoDTO>))]
         public async Task<ActionResult<IEnumerable<HistoricoMovimentacaoDTO>>> ObterPorPeriodo(
             [FromQuery] DateTime dataInicio,

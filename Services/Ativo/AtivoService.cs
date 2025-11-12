@@ -288,6 +288,24 @@ namespace ActiveControlApi.Services.Ativo
 
             return ativos.ParaListaAtivoDto();
         }
+
+        // Paginação
+        public async Task<(IEnumerable<AtivoDTO> itens, int total)> PegarPaginado(int pagina, int tamanhoPagina)
+        {
+            pagina = pagina <= 0 ? 1 : pagina;
+            tamanhoPagina = tamanhoPagina <= 0 ? 10 : Math.Min(tamanhoPagina, 100);
+
+            var query = _uow.Ativo.GetQueryble();
+            var total = await query.CountAsync();
+
+            var itens = await query
+                .OrderBy(a => a.Id)
+                .Skip((pagina - 1) * tamanhoPagina)
+                .Take(tamanhoPagina)
+                .ToListAsync();
+
+            return (itens.ParaListaAtivoDto(), total);
+        }
     }
 }
 

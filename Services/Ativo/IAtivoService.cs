@@ -28,5 +28,8 @@ namespace ActiveControlApi.Services.Ativo
         Task<Dictionary<string, object>> ObterEstatisticas();
         Task<IEnumerable<AtivoDTO>> BuscarPorUsuario(int usuarioId);
         Task<IEnumerable<AtivoDTO>> BuscarPorDepartamento(int departamentoId);
+
+        // Paginação
+        Task<(IEnumerable<AtivoDTO> itens, int total)> PegarPaginado(int pagina, int tamanhoPagina);
     }
 }

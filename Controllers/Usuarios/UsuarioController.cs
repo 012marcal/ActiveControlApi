@@ -3,7 +3,7 @@ using ActiveControlApi.Services.Usuario;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.Swagger.Annotations;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ActiveControlApi.Controllers.Usuarios
 {
@@ -20,7 +20,9 @@ namespace ActiveControlApi.Controllers.Usuarios
 
         [HttpPost]
         [Route("v1/Usuario")]
-        [SwaggerOperation("Adicionar Usuário")]
+        [SwaggerOperation(Summary = "Criar um novo Usuário no sistema")]
+        [SwaggerResponse(StatusCodes.Status201Created, "Usuário criado com sucesso", typeof(UsuarioDTO))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao criar usuário")]
         public async Task<ActionResult<UsuarioDTO>> Adicionar([FromBody] UsuarioDTO dto)
         {
             try
@@ -36,6 +38,8 @@ namespace ActiveControlApi.Controllers.Usuarios
 
         [HttpGet]
         [Route("v1/Usuario")]
+        [SwaggerOperation(Summary = "Listar todos os Usuários cadastrados no sistema")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Lista de usuários obtida com sucesso", typeof(IEnumerable<UsuarioDTO>))]
         public async Task<ActionResult<IEnumerable<UsuarioDTO>>> ObterTodos()
         {
             var itens = await _service.PegarTodos();
@@ -44,6 +48,9 @@ namespace ActiveControlApi.Controllers.Usuarios
 
         [HttpGet]
         [Route("v1/Usuario/{id:int}")]
+        [SwaggerOperation(Summary = "Obter um Usuário específico pelo seu identificador")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Usuário encontrado", typeof(UsuarioDTO))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Usuário não encontrado")]
         public async Task<ActionResult<UsuarioDTO>> ObterPorId(int id)
         {
             try
@@ -59,6 +66,10 @@ namespace ActiveControlApi.Controllers.Usuarios
 
         [HttpPut]
         [Route("v1/Usuario/{id:int}")]
+        [SwaggerOperation(Summary = "Atualizar informações de um Usuário existente")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Usuário atualizado com sucesso", typeof(UsuarioDTO))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Usuário não encontrado")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao atualizar usuário")]
         public async Task<ActionResult<UsuarioDTO>> Atualizar(int id, [FromBody] UsuarioDTO dto)
         {
             try
@@ -78,6 +89,10 @@ namespace ActiveControlApi.Controllers.Usuarios
 
         [HttpDelete]
         [Route("v1/Usuario/{id:int}")]
+        [SwaggerOperation(Summary = "Remover um Usuário do sistema")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Usuário removido com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Usuário não encontrado")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao remover usuário")]
         public async Task<IActionResult> Remover(int id)
         {
             try

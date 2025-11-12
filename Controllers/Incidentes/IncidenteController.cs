@@ -21,7 +21,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpPost]
         [Route("v1/Incidente")]
-        [SwaggerOperation("Adicionar um Incidente")]
+        [SwaggerOperation(Summary = "Adicionar um Incidente")]
         [SwaggerResponse(StatusCodes.Status201Created, "Incidente criado", typeof(IncidenteDTO))]
         public async Task<ActionResult<IncidenteDTO>> Adicionar([FromBody] IncidenteDTO dto)
         {
@@ -38,7 +38,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpGet]
         [Route("v1/Incidente")]
-        [SwaggerOperation("Listar Incidentes")]
+        [SwaggerOperation(Summary = "Listar Incidentes")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Incidentes", typeof(IEnumerable<IncidenteDTO>))]
         public async Task<ActionResult<IEnumerable<IncidenteDTO>>> ObterTodos()
         {
@@ -48,7 +48,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpGet]
         [Route("v1/Incidente/{id:int}")]
-        [SwaggerOperation("Obter Incidente por Id")]
+        [SwaggerOperation(Summary = "Obter Incidente por Id")]
         [SwaggerResponse(StatusCodes.Status200OK, "Incidente", typeof(IncidenteDTO))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Não encontrado")]
         public async Task<ActionResult<IncidenteDTO>> ObterPorId(int id)
@@ -66,7 +66,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpPut]
         [Route("v1/Incidente/{id:int}")]
-        [SwaggerOperation("Atualizar Incidente")]
+        [SwaggerOperation(Summary = "Atualizar Incidente")]
         public async Task<ActionResult<IncidenteDTO>> Atualizar(int id, [FromBody] IncidenteDTO dto)
         {
             try
@@ -86,7 +86,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpDelete]
         [Route("v1/Incidente/{id:int}")]
-        [SwaggerOperation("Remover Incidente")]
+        [SwaggerOperation(Summary = "Remover Incidente")]
         public async Task<IActionResult> Remover(int id)
         {
             try
@@ -105,7 +105,7 @@ namespace ActiveControlApi.Controllers.Incidentes
         // Filtros avançados
         [HttpGet]
         [Route("v1/Incidente/Status/{status}")]
-        [SwaggerOperation("Buscar incidentes por status")]
+        [SwaggerOperation(Summary = "Buscar incidentes por status")]
         public async Task<ActionResult<IEnumerable<IncidenteDTO>>> BuscarPorStatus(StatusIncidente status)
         {
             var itens = await _incidenteService.BuscarPorStatus(status);
@@ -114,7 +114,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpGet]
         [Route("v1/Incidente/Severidade/{severidade}")]
-        [SwaggerOperation("Buscar incidentes por severidade")]
+        [SwaggerOperation(Summary = "Buscar incidentes por severidade")]
         public async Task<ActionResult<IEnumerable<IncidenteDTO>>> BuscarPorSeveridade(SeveridadeIncidente severidade)
         {
             var itens = await _incidenteService.BuscarPorSeveridade(severidade);
@@ -123,7 +123,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpGet]
         [Route("v1/Incidente/Prioridade/{prioridade}")]
-        [SwaggerOperation("Buscar incidentes por prioridade")]
+        [SwaggerOperation(Summary = "Buscar incidentes por prioridade")]
         public async Task<ActionResult<IEnumerable<IncidenteDTO>>> BuscarPorPrioridade(PrioridadeSolicitacao prioridade)
         {
             var itens = await _incidenteService.BuscarPorPrioridade(prioridade);
@@ -132,7 +132,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpGet]
         [Route("v1/Incidente/Responsavel/{usuarioId}")]
-        [SwaggerOperation("Buscar incidentes atribuídos a um responsável")]
+        [SwaggerOperation(Summary = "Buscar incidentes atribuídos a um responsável")]
         public async Task<ActionResult<IEnumerable<IncidenteDTO>>> BuscarPorResponsavel(int usuarioId)
         {
             var itens = await _incidenteService.BuscarPorUsuarioResponsavel(usuarioId);
@@ -141,7 +141,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpGet]
         [Route("v1/Incidente/Abertos")]
-        [SwaggerOperation("Buscar incidentes abertos")]
+        [SwaggerOperation(Summary = "Buscar incidentes abertos")]
         public async Task<ActionResult<IEnumerable<IncidenteDTO>>> BuscarAbertos()
         {
             var itens = await _incidenteService.BuscarAbertos();
@@ -150,7 +150,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpGet]
         [Route("v1/Incidente/Atrasados")]
-        [SwaggerOperation("Buscar incidentes atrasados")]
+        [SwaggerOperation(Summary = "Buscar incidentes atrasados")]
         public async Task<ActionResult<IEnumerable<IncidenteDTO>>> BuscarAtrasados()
         {
             var itens = await _incidenteService.BuscarAtrasados();
@@ -159,7 +159,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpGet]
         [Route("v1/Incidente/Periodo")]
-        [SwaggerOperation("Buscar incidentes por período")]
+        [SwaggerOperation(Summary = "Buscar incidentes por período")]
         public async Task<ActionResult<IEnumerable<IncidenteDTO>>> BuscarPorPeriodo(
             [FromQuery] DateTime dataInicio,
             [FromQuery] DateTime dataFim)
@@ -170,7 +170,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpGet]
         [Route("v1/Incidente/Atribuidos/{usuarioId}")]
-        [SwaggerOperation("Buscar incidentes atribuídos a mim")]
+        [SwaggerOperation(Summary = "Buscar incidentes atribuídos a mim")]
         public async Task<ActionResult<IEnumerable<IncidenteDTO>>> BuscarIncidentesAtribuidos(int usuarioId)
         {
             var itens = await _incidenteService.BuscarIncidentesAtribuidos(usuarioId);
@@ -180,7 +180,7 @@ namespace ActiveControlApi.Controllers.Incidentes
         // Workflow
         [HttpPost]
         [Route("v1/Incidente/{id:int}/Atribuir")]
-        [SwaggerOperation("Atribuir responsável ao incidente")]
+        [SwaggerOperation(Summary = "Atribuir responsável ao incidente")]
         public async Task<ActionResult<IncidenteDTO>> AtribuirResponsavel(int id, [FromBody] int usuarioResponsavelId)
         {
             try
@@ -200,7 +200,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpPost]
         [Route("v1/Incidente/{id:int}/IniciarAnalise")]
-        [SwaggerOperation("Iniciar análise do incidente")]
+        [SwaggerOperation(Summary = "Iniciar análise do incidente")]
         public async Task<ActionResult<IncidenteDTO>> IniciarAnalise(int id)
         {
             try
@@ -220,7 +220,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpPost]
         [Route("v1/Incidente/{id:int}/IniciarResolucao")]
-        [SwaggerOperation("Iniciar resolução do incidente")]
+        [SwaggerOperation(Summary = "Iniciar resolução do incidente")]
         public async Task<ActionResult<IncidenteDTO>> IniciarResolucao(int id)
         {
             try
@@ -240,7 +240,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpPost]
         [Route("v1/Incidente/{id:int}/Resolver")]
-        [SwaggerOperation("Resolver incidente")]
+        [SwaggerOperation(Summary = "Resolver incidente")]
         public async Task<ActionResult<IncidenteDTO>> Resolver(int id, [FromBody] ResolverIncidenteRequest? request = null)
         {
             try
@@ -260,7 +260,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpPost]
         [Route("v1/Incidente/{id:int}/Cancelar")]
-        [SwaggerOperation("Cancelar incidente")]
+        [SwaggerOperation(Summary = "Cancelar incidente")]
         public async Task<ActionResult<IncidenteDTO>> Cancelar(int id, [FromBody] string? motivo = null)
         {
             try
@@ -280,7 +280,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpPut]
         [Route("v1/Incidente/{id:int}/Prioridade")]
-        [SwaggerOperation("Alterar prioridade do incidente")]
+        [SwaggerOperation(Summary = "Alterar prioridade do incidente")]
         public async Task<ActionResult<IncidenteDTO>> AlterarPrioridade(int id, [FromBody] PrioridadeSolicitacao prioridade)
         {
             try
@@ -296,7 +296,7 @@ namespace ActiveControlApi.Controllers.Incidentes
 
         [HttpPut]
         [Route("v1/Incidente/{id:int}/Severidade")]
-        [SwaggerOperation("Alterar severidade do incidente")]
+        [SwaggerOperation(Summary = "Alterar severidade do incidente")]
         public async Task<ActionResult<IncidenteDTO>> AlterarSeveridade(int id, [FromBody] SeveridadeIncidente severidade)
         {
             try
@@ -313,7 +313,7 @@ namespace ActiveControlApi.Controllers.Incidentes
         // Relatórios
         [HttpGet]
         [Route("v1/Incidente/Estatisticas")]
-        [SwaggerOperation("Obter estatísticas de incidentes")]
+        [SwaggerOperation(Summary = "Obter estatísticas de incidentes")]
         public async Task<ActionResult<Dictionary<string, object>>> ObterEstatisticas()
         {
             var stats = await _incidenteService.ObterEstatisticas();

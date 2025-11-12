@@ -68,42 +68,66 @@ namespace ActiveControlApi.Services.Solicitacao
             switch (criado.TipoSolicitacao)
             {
                 case TipoSolicitacao.Incidente:
-                    var incidente = new ModelIncidente
+                    // Verificar se já existe incidente para esta solicitação
+                    var existeIncidente = await _uow.Incidente.Any(i => i.SolicitacaoId == criado.Id);
+                    if (!existeIncidente)
                     {
-                        SolicitacaoId = criado.Id,
-                        Descricao = criado.Descricao,
-                        Severidade = SeveridadeIncidente.Media // Valor padrão, pode ser ajustado
-                    };
-                    _uow.Incidente.Create(incidente);
+                        var incidente = new ModelIncidente
+                        {
+                            SolicitacaoId = criado.Id,
+                            Descricao = criado.Descricao,
+                            Severidade = SeveridadeIncidente.Media // Valor padrão, pode ser ajustado
+                        };
+                        _uow.Incidente.Create(incidente);
+                    }
                     break;
 
                 case TipoSolicitacao.ManutencaoCorretiva:
-                    var manutencaoCorretiva = new ModelManutencao
+                    // Verificar se já existe manutenção para esta solicitação
+                    var existeManutencaoCorretiva = await _uow.Manutencao.Any(m => m.SolicitacaoId == criado.Id);
+                    if (!existeManutencaoCorretiva)
                     {
-                        SolicitacaoId = criado.Id,
-                        TipoManutencao = TipoManutencao.Corretiva,
-                        DataCriacao = DateTime.UtcNow
-                    };
-                    _uow.Manutencao.Create(manutencaoCorretiva);
+                        var manutencaoCorretiva = new ModelManutencao
+                        {
+                            SolicitacaoId = criado.Id,
+                            TipoManutencao = TipoManutencao.Corretiva,
+                            StatusManutencao = StatusManutencao.Agendada,
+                            DataCriacao = DateTime.UtcNow,
+                            Prioridade = criado.Prioridade
+                        };
+                        _uow.Manutencao.Create(manutencaoCorretiva);
+                    }
                     break;
 
                 case TipoSolicitacao.ManutencaoPreventiva:
-                    var manutencaoPreventiva = new ModelManutencao
+                    // Verificar se já existe manutenção para esta solicitação
+                    var existeManutencaoPreventiva = await _uow.Manutencao.Any(m => m.SolicitacaoId == criado.Id);
+                    if (!existeManutencaoPreventiva)
                     {
-                        SolicitacaoId = criado.Id,
-                        TipoManutencao = TipoManutencao.Preventiva,
-                        DataCriacao = DateTime.UtcNow
-                    };
-                    _uow.Manutencao.Create(manutencaoPreventiva);
+                        var manutencaoPreventiva = new ModelManutencao
+                        {
+                            SolicitacaoId = criado.Id,
+                            TipoManutencao = TipoManutencao.Preventiva,
+                            StatusManutencao = StatusManutencao.Agendada,
+                            DataCriacao = DateTime.UtcNow,
+                            Prioridade = criado.Prioridade
+                        };
+                        _uow.Manutencao.Create(manutencaoPreventiva);
+                    }
                     break;
 
                 case TipoSolicitacao.Devolução:
-                    var devolucao = new ModelDevolucao
+                    // Verificar se já existe devolução para esta solicitação
+                    var existeDevolucao = await _uow.Devolucao.Any(d => d.SolicitacaoId == criado.Id);
+                    if (!existeDevolucao)
                     {
-                        SolicitacaoId = criado.Id,
-                        MotivoDevolucao = criado.Descricao // Usar a descrição da solicitação como motivo
-                    };
-                    _uow.Devolucao.Create(devolucao);
+                        var devolucao = new ModelDevolucao
+                        {
+                            SolicitacaoId = criado.Id,
+                            MotivoDevolucao = criado.Descricao // Usar a descrição da solicitação como motivo
+                        };
+                        _uow.Devolucao.Create(devolucao);
+                    }
                     break;
 
                 case TipoSolicitacao.AquisicaoEquipamento:
@@ -112,6 +136,25 @@ namespace ActiveControlApi.Services.Solicitacao
 
                 default:
                     throw new InvalidOperationException($"Tipo de solicitação inválido: {criado.TipoSolicitacao}");
+            }
+
+            // Registrar histórico de movimentação
+            try
+            {
+                var historico = new Models.HistoricoMovimentacao
+                {
+                    AtivoId = criado.AtivoId,
+                    TipoMovimentacao = Models.Enums.TipoMovimentacao.CriacaoSolicitacao,
+                    Descricao = $"Solicitação criada: {criado.Titulo} (Tipo: {criado.TipoSolicitacao})",
+                    SolicitacaoId = criado.Id,
+                    UsuarioResponsavelId = criado.UsuarioSolicitanteId,
+                    DataMovimentacao = DateTime.UtcNow
+                };
+                _uow.HistoricoMovimentacao.Create(historico);
+            }
+            catch
+            {
+                // Não falhar a operação principal se o histórico falhar
             }
 
             // Salvar os registros relacionados

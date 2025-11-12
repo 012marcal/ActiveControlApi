@@ -3,7 +3,7 @@ using ActiveControlApi.Services.Devolucao;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.Swagger.Annotations;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ActiveControlApi.Controllers.Devolucoes
 {
@@ -20,7 +20,7 @@ namespace ActiveControlApi.Controllers.Devolucoes
 
         [HttpPost]
         [Route("v1/Devolucao")]
-        [SwaggerOperation("Adicionar uma Devolução")]
+        [SwaggerOperation(Summary = "Adicionar uma Devolução")]
         [SwaggerResponse(StatusCodes.Status201Created, "Devolução criada", typeof(DevolucaoDTO))]
         public async Task<ActionResult<DevolucaoDTO>> Adicionar([FromBody] DevolucaoDTO dto)
         {
@@ -37,7 +37,7 @@ namespace ActiveControlApi.Controllers.Devolucoes
 
         [HttpGet]
         [Route("v1/Devolucao")]
-        [SwaggerOperation("Listar Devoluções")]
+        [SwaggerOperation(Summary = "Listar Devoluções")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de Devoluções", typeof(IEnumerable<DevolucaoDTO>))]
         public async Task<ActionResult<IEnumerable<DevolucaoDTO>>> ObterTodos()
         {
@@ -47,7 +47,7 @@ namespace ActiveControlApi.Controllers.Devolucoes
 
         [HttpGet]
         [Route("v1/Devolucao/{id:int}")]
-        [SwaggerOperation("Obter Devolução por Id")]
+        [SwaggerOperation(Summary = "Obter Devolução por Id")]
         [SwaggerResponse(StatusCodes.Status200OK, "Devolução", typeof(DevolucaoDTO))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Não encontrado")]
         public async Task<ActionResult<DevolucaoDTO>> ObterPorId(int id)
@@ -65,7 +65,7 @@ namespace ActiveControlApi.Controllers.Devolucoes
 
         [HttpPut]
         [Route("v1/Devolucao/{id:int}")]
-        [SwaggerOperation("Atualizar Devolução")]
+        [SwaggerOperation(Summary = "Atualizar Devolução")]
         public async Task<ActionResult<DevolucaoDTO>> Atualizar(int id, [FromBody] DevolucaoDTO dto)
         {
             try
@@ -85,7 +85,7 @@ namespace ActiveControlApi.Controllers.Devolucoes
 
         [HttpDelete]
         [Route("v1/Devolucao/{id:int}")]
-        [SwaggerOperation("Remover Devolução")]
+        [SwaggerOperation(Summary = "Remover Devolução")]
         public async Task<IActionResult> Remover(int id)
         {
             try

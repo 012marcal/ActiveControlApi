@@ -1,5 +1,6 @@
 ﻿
 using ActiveControlApi.DTO.Empresas;
+using ActiveControlApi.DTO.Departamento;
 
 namespace ActiveControlApi.Services.Empresa
 {
@@ -17,6 +18,7 @@ namespace ActiveControlApi.Services.Empresa
         Task<EmpresaDTO> AtualizarEmpresa(int id , EmpresaDTO empresaRegistroDTO);
 
         Task<bool> RemoverEmpresa(int id);
+        Task<IEnumerable<DepartamentoDTO>> ObterDepartamentosPorEmpresa(int empresaId);
 
    
 

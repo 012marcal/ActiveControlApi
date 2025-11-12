@@ -9,12 +9,16 @@ using ActiveControlApi.Services.ModeloAtivo;
 using ActiveControlApi.Services.Usuario;
 using ActiveControlApi.Services.AtivoUsuario;
 using ActiveControlApi.Services.AtivoDepartamento;
-using ActiveControlApi.Services.Solicitacao;
 using ActiveControlApi.Services.Manutencao;
+using ActiveControlApi.Services.Relatorios;
+using ActiveControlApi.Services.Solicitacao;
 using ActiveControlApi.Services.Incidente;
 using ActiveControlApi.Services.Devolucao;
 using ActiveControlApi.Services.Auth;
 using ActiveControlApi.Services.Historico;
+using ActiveControlApi.Services.Cargo;
+using ActiveControlApi.Services.UsuarioCargo;
+using ActiveControlApi.Services.UsuarioDepartamento;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -62,10 +66,16 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Active Control API",
         Version = "v1",
-        Description = "API para o sistema Active Control. Permite gerenciar ativos, departamentos e solicitações em tempo real."
+        Description = "API para o sistema Active Control. Permite gerenciar ativos, departamentos e solicitações em tempo real.",
+        Contact = new OpenApiContact
+        {
+            Name = "Active Control",
+            Email = "contato@activecontrol.com"
+        }
     });
-
+    
     c.EnableAnnotations();
+    c.UseInlineDefinitionsForEnums(); 
 
     // Configurar Swagger para suportar JWT
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -132,15 +142,22 @@ builder.Services.AddScoped<IModeloAtivoService, ModeloAtivoService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IAtivoUsuarioService, AtivoUsuarioService>();
 builder.Services.AddScoped<IAtivoDepartamentoService, AtivoDepartamentoService>();
-builder.Services.AddScoped<ISolicitacaoService, SolicitacaoService>();
 builder.Services.AddScoped<IManutencaoService, ManutencaoService>();
+builder.Services.AddScoped<IRelatorioService, RelatorioService>();
+builder.Services.AddScoped<ISolicitacaoService, SolicitacaoService>();
 builder.Services.AddScoped<IIncidenteService, IncidenteService>();
 builder.Services.AddScoped<IDevolucaoService, DevolucaoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHistoricoService, HistoricoService>();
+builder.Services.AddScoped<ICargoService, CargoService>();
+builder.Services.AddScoped<IUsuarioCargoService, UsuarioCargoService>();
+builder.Services.AddScoped<IUsuarioDepartamentoService, UsuarioDepartamentoService>();
 
 
 var app = builder.Build();
+
+// Habilitar arquivos estáticos para logo
+app.UseStaticFiles();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -149,6 +166,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Active Control API v1");
+        c.InjectJavascript("/swagger-logo.js");
+        c.DisplayRequestDuration();
+        c.EnableDeepLinking();
+        c.EnableFilter();
+            c.EnableValidator();
+        c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
     });
 }
 

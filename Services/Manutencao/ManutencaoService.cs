@@ -3,7 +3,6 @@ using ActiveControlApi.DTO.MappingExtensions;
 using ActiveControlApi.Models.Enums;
 using ActiveControlApi.Repositories;
 using Microsoft.EntityFrameworkCore;
-using ModelManutencao = ActiveControlApi.Models.Manutencao;
 
 namespace ActiveControlApi.Services.Manutencao
 {
@@ -16,208 +15,234 @@ namespace ActiveControlApi.Services.Manutencao
             _uow = uow;
         }
 
-        private IQueryable<ModelManutencao> GetQueryableWithIncludes()
+        private IQueryable<Models.Manutencao> ObterQueryComIncludes()
         {
             return _uow.Manutencao.GetQueryble()
                 .Include(m => m.Solicitacao)
-                    .ThenInclude(s => s.Ativo)
+                    .ThenInclude(s => s!.Ativo)
                 .Include(m => m.UsuarioResponsavel);
+        }
+
+        private IQueryable<Models.Manutencao> AplicarFiltros(IQueryable<Models.Manutencao> query, FiltroManutencaoDTO? filtro)
+        {
+            if (filtro == null) return query;
+
+            if (filtro.Status.HasValue)
+                query = query.Where(m => m.StatusManutencao == filtro.Status.Value);
+
+            if (filtro.Tipo.HasValue)
+                query = query.Where(m => m.TipoManutencao == filtro.Tipo.Value);
+
+            if (filtro.Prioridade.HasValue)
+                query = query.Where(m => m.Prioridade == filtro.Prioridade.Value);
+
+            if (filtro.AtivoId.HasValue)
+                query = query.Where(m => m.Solicitacao != null && m.Solicitacao.AtivoId == filtro.AtivoId.Value);
+
+            if (filtro.UsuarioResponsavelId.HasValue)
+                query = query.Where(m => m.UsuarioResponsavelId == filtro.UsuarioResponsavelId.Value);
+
+            if (filtro.SolicitacaoId.HasValue)
+                query = query.Where(m => m.SolicitacaoId == filtro.SolicitacaoId.Value);
+
+            if (filtro.DataInicio.HasValue)
+                query = query.Where(m => m.DataCriacao >= filtro.DataInicio.Value);
+
+            if (filtro.DataFim.HasValue)
+                query = query.Where(m => m.DataCriacao <= filtro.DataFim.Value);
+
+            if (filtro.Atrasadas == true)
+            {
+                var hoje = DateTime.UtcNow;
+                query = query.Where(m => 
+                    m.DataPrazo.HasValue && 
+                    m.DataPrazo.Value < hoje &&
+                    m.StatusManutencao != StatusManutencao.Concluida &&
+                    m.StatusManutencao != StatusManutencao.Cancelada);
+            }
+
+            return query;
+        }
+
+        public async Task<ManutencaoDTO> Criar(CriarManutencaoDTO dto)
+        {
+            // Validar se a solicitação existe
+            var solicitacao = await _uow.Solicitacao.Get(s => s.Id == dto.SolicitacaoId);
+            if (solicitacao == null)
+                throw new KeyNotFoundException($"Solicitação com id {dto.SolicitacaoId} não encontrada.");
+
+            // Validar se já existe manutenção para esta solicitação
+            var existeManutencao = await _uow.Manutencao.Any(m => m.SolicitacaoId == dto.SolicitacaoId);
+            if (existeManutencao)
+                throw new InvalidOperationException("Já existe uma manutenção para esta solicitação.");
+
+            // Validar usuário responsável se informado
+            if (dto.UsuarioResponsavelId.HasValue)
+            {
+                var usuario = await _uow.Usuario.Get(u => u.Id == dto.UsuarioResponsavelId.Value);
+                if (usuario == null)
+                    throw new KeyNotFoundException($"Usuário responsável com id {dto.UsuarioResponsavelId.Value} não encontrado.");
+            }
+
+            var manutencao = new Models.Manutencao
+            {
+                SolicitacaoId = dto.SolicitacaoId,
+                TipoManutencao = dto.TipoManutencao,
+                StatusManutencao = StatusManutencao.Agendada,
+                UsuarioResponsavelId = dto.UsuarioResponsavelId,
+                Prioridade = dto.Prioridade,
+                DataCriacao = DateTime.UtcNow,
+                DataAgendada = dto.DataAgendada,
+                DataPrazo = dto.DataPrazo,
+                CustoEstimado = dto.CustoEstimado,
+                Observacoes = dto.Observacoes
+            };
+
+            var criada = _uow.Manutencao.Create(manutencao);
+            await _uow.CommitAsync();
+
+            // Buscar com includes para retornar dados completos
+            var manutencaoCompleta = await ObterQueryComIncludes()
+                .FirstOrDefaultAsync(m => m.Id == criada.Id);
+
+            return manutencaoCompleta!.ParaManutencaoDto()!;
+        }
+
+        public async Task<ManutencaoDTO> PegarPorId(int id)
+        {
+            var manutencao = await ObterQueryComIncludes()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (manutencao == null)
+                throw new KeyNotFoundException($"Manutenção com id {id} não encontrada.");
+
+            return manutencao.ParaManutencaoDto()!;
         }
 
         public async Task<IEnumerable<ManutencaoDTO>> PegarTodos()
         {
-            var manutencoes = await GetQueryableWithIncludes().ToListAsync();
-            if (!manutencoes.Any())
-                return Enumerable.Empty<ManutencaoDTO>();
+            var manutencoes = await ObterQueryComIncludes()
+                .OrderByDescending(m => m.DataCriacao)
+                .ToListAsync();
 
             return manutencoes.ParaListaManutencaoDto();
         }
 
-        public async Task<ManutencaoDTO> PegarPorId(int idManutencao)
+        public async Task<ManutencaoDTO> Atualizar(int id, AtualizarManutencaoDTO dto)
         {
-            var manutencao = await GetQueryableWithIncludes()
-                .FirstOrDefaultAsync(m => m.Id == idManutencao);
+            var manutencao = await _uow.Manutencao.Get(m => m.Id == id);
             if (manutencao == null)
-                throw new KeyNotFoundException($"Manutenção com id {idManutencao} não encontrada.");
+                throw new KeyNotFoundException($"Manutenção com id {id} não encontrada.");
 
-            return manutencao.ParaManutencaoDto() ?? throw new InvalidOperationException("Erro ao converter manutenção.");
-        }
+            // Validar se pode atualizar (não pode atualizar se estiver concluída ou cancelada)
+            if (manutencao.StatusManutencao == StatusManutencao.Concluida ||
+                manutencao.StatusManutencao == StatusManutencao.Cancelada)
+                throw new InvalidOperationException("Não é possível atualizar uma manutenção concluída ou cancelada.");
 
-        public async Task<ManutencaoDTO> CriarManutencao(ManutencaoDTO manutencaoRegistro)
-        {
-            var entity = manutencaoRegistro.ParaManutencao();
-            if (entity == null)
-                throw new ArgumentNullException(nameof(manutencaoRegistro), "Não foi possível criar a manutenção.");
+            // Validar usuário responsável se informado
+            if (dto.UsuarioResponsavelId.HasValue)
+            {
+                var usuario = await _uow.Usuario.Get(u => u.Id == dto.UsuarioResponsavelId.Value);
+                if (usuario == null)
+                    throw new KeyNotFoundException($"Usuário responsável com id {dto.UsuarioResponsavelId.Value} não encontrado.");
+                manutencao.UsuarioResponsavelId = dto.UsuarioResponsavelId.Value;
+            }
 
-            var criado = _uow.Manutencao.Create(entity);
+            if (dto.Prioridade.HasValue)
+                manutencao.Prioridade = dto.Prioridade.Value;
+
+            if (dto.DataAgendada.HasValue)
+                manutencao.DataAgendada = dto.DataAgendada.Value;
+
+            if (dto.DataPrazo.HasValue)
+                manutencao.DataPrazo = dto.DataPrazo.Value;
+
+            if (dto.CustoEstimado.HasValue)
+                manutencao.CustoEstimado = dto.CustoEstimado.Value;
+
+            if (dto.CustoReal.HasValue)
+                manutencao.CustoReal = dto.CustoReal.Value;
+
+            if (!string.IsNullOrWhiteSpace(dto.Observacoes))
+                manutencao.Observacoes = dto.Observacoes;
+
+            if (!string.IsNullOrWhiteSpace(dto.SolucaoAplicada))
+                manutencao.SolucaoAplicada = dto.SolucaoAplicada;
+
+            _uow.Manutencao.Update(manutencao);
             await _uow.CommitAsync();
 
-            return criado.ParaManutencaoDto() ?? throw new InvalidOperationException("Erro ao criar manutenção.");
+            // Buscar com includes para retornar dados completos
+            var manutencaoCompleta = await ObterQueryComIncludes()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            return manutencaoCompleta!.ParaManutencaoDto()!;
         }
 
-        public async Task<ManutencaoDTO> AtualizarManutencao(int idManutencao, ManutencaoDTO manutencaoRegistro)
+        public async Task<bool> Remover(int id)
         {
-            var entity = await _uow.Manutencao.Get(m => m.Id == idManutencao);
-            if (entity == null)
-                throw new KeyNotFoundException($"Manutenção com id {idManutencao} não encontrada.");
+            var manutencao = await _uow.Manutencao.Get(m => m.Id == id);
+            if (manutencao == null)
+                throw new KeyNotFoundException($"Manutenção com id {id} não encontrada.");
 
-            if (manutencaoRegistro.SolicitacaoId > 0)
-                entity.SolicitacaoId = manutencaoRegistro.SolicitacaoId;
-            if (manutencaoRegistro.TipoManutencao != default)
-                entity.TipoManutencao = manutencaoRegistro.TipoManutencao;
-            if (manutencaoRegistro.StatusManutencao != default)
-                entity.StatusManutencao = manutencaoRegistro.StatusManutencao;
-            if (manutencaoRegistro.UsuarioResponsavelId.HasValue)
-                entity.UsuarioResponsavelId = manutencaoRegistro.UsuarioResponsavelId;
-            if (manutencaoRegistro.Prioridade != default)
-                entity.Prioridade = manutencaoRegistro.Prioridade;
-            if (manutencaoRegistro.DataAgendada.HasValue)
-                entity.DataAgendada = manutencaoRegistro.DataAgendada;
-            if (manutencaoRegistro.DataInicio.HasValue)
-                entity.DataInicio = manutencaoRegistro.DataInicio;
-            if (manutencaoRegistro.DataFechamento.HasValue)
-                entity.DataFechamento = manutencaoRegistro.DataFechamento;
-            if (manutencaoRegistro.DataPrazo.HasValue)
-                entity.DataPrazo = manutencaoRegistro.DataPrazo;
-            if (manutencaoRegistro.CustoEstimado.HasValue)
-                entity.CustoEstimado = manutencaoRegistro.CustoEstimado;
-            if (manutencaoRegistro.CustoReal.HasValue)
-                entity.CustoReal = manutencaoRegistro.CustoReal;
-            if (!string.IsNullOrWhiteSpace(manutencaoRegistro.Observacoes))
-                entity.Observacoes = manutencaoRegistro.Observacoes;
-            if (!string.IsNullOrWhiteSpace(manutencaoRegistro.SolucaoAplicada))
-                entity.SolucaoAplicada = manutencaoRegistro.SolucaoAplicada;
+            // Validar se pode remover (não pode remover se estiver em andamento ou concluída)
+            if (manutencao.StatusManutencao == StatusManutencao.EmAndamento ||
+                manutencao.StatusManutencao == StatusManutencao.Concluida)
+                throw new InvalidOperationException("Não é possível remover uma manutenção em andamento ou concluída.");
 
-            _uow.Manutencao.Update(entity);
-            await _uow.CommitAsync();
-
-            return entity.ParaManutencaoDto() ?? throw new InvalidOperationException("Erro ao atualizar manutenção.");
-        }
-
-        public async Task<bool> RemoverManutencao(int idManutencao)
-        {
-            var entity = await _uow.Manutencao.Get(m => m.Id == idManutencao);
-            if (entity == null)
-                throw new KeyNotFoundException($"Manutenção com id {idManutencao} não encontrada.");
-
-            _uow.Manutencao.Delete(entity);
+            _uow.Manutencao.Delete(manutencao);
             var linhas = await _uow.CommitAsync();
             return linhas > 0;
         }
 
-        // Filtros avançados
-        public async Task<IEnumerable<ManutencaoDTO>> BuscarPorStatus(StatusManutencao status)
+        public async Task<(IEnumerable<ManutencaoDTO> itens, int total)> PegarPaginado(int pagina, int tamanhoPagina, FiltroManutencaoDTO? filtro = null)
         {
-            var manutencoes = await GetQueryableWithIncludes()
-                .Where(m => m.StatusManutencao == status)
+            pagina = pagina <= 0 ? 1 : pagina;
+            tamanhoPagina = tamanhoPagina <= 0 ? 10 : Math.Min(tamanhoPagina, 100);
+
+            var query = ObterQueryComIncludes();
+            query = AplicarFiltros(query, filtro);
+
+            var total = await query.CountAsync();
+            var itens = await query
+                .OrderByDescending(m => m.DataCriacao)
+                .Skip((pagina - 1) * tamanhoPagina)
+                .Take(tamanhoPagina)
                 .ToListAsync();
+
+            return (itens.ParaListaManutencaoDto(), total);
+        }
+
+        public async Task<IEnumerable<ManutencaoDTO>> BuscarComFiltros(FiltroManutencaoDTO filtro)
+        {
+            var query = ObterQueryComIncludes();
+            query = AplicarFiltros(query, filtro);
+
+            var manutencoes = await query
+                .OrderByDescending(m => m.DataCriacao)
+                .ToListAsync();
+
             return manutencoes.ParaListaManutencaoDto();
         }
 
-        public async Task<IEnumerable<ManutencaoDTO>> BuscarPorTipo(TipoManutencao tipo)
+        public async Task<ManutencaoDTO> IniciarManutencao(int id, int? usuarioResponsavelId = null)
         {
-            var manutencoes = await GetQueryableWithIncludes()
-                .Where(m => m.TipoManutencao == tipo)
-                .ToListAsync();
-            return manutencoes.ParaListaManutencaoDto();
-        }
-
-        public async Task<IEnumerable<ManutencaoDTO>> BuscarPorPrioridade(PrioridadeSolicitacao prioridade)
-        {
-            var manutencoes = await GetQueryableWithIncludes()
-                .Where(m => m.Prioridade == prioridade)
-                .ToListAsync();
-            return manutencoes.ParaListaManutencaoDto();
-        }
-
-        public async Task<IEnumerable<ManutencaoDTO>> BuscarPorUsuarioResponsavel(int usuarioId)
-        {
-            var manutencoes = await GetQueryableWithIncludes()
-                .Where(m => m.UsuarioResponsavelId == usuarioId)
-                .ToListAsync();
-            return manutencoes.ParaListaManutencaoDto();
-        }
-
-        public async Task<IEnumerable<ManutencaoDTO>> BuscarAtrasadas()
-        {
-            var hoje = DateTime.UtcNow;
-            var manutencoes = await GetQueryableWithIncludes()
-                .Where(m => m.DataPrazo.HasValue &&
-                           m.DataPrazo.Value < hoje &&
-                           m.StatusManutencao != StatusManutencao.Concluida &&
-                           m.StatusManutencao != StatusManutencao.Cancelada)
-                .OrderBy(m => m.DataPrazo)
-                .ToListAsync();
-            return manutencoes.ParaListaManutencaoDto();
-        }
-
-        public async Task<IEnumerable<ManutencaoDTO>> BuscarPorPeriodo(DateTime dataInicio, DateTime dataFim)
-        {
-            var manutencoes = await GetQueryableWithIncludes()
-                .Where(m => m.DataCriacao >= dataInicio && m.DataCriacao <= dataFim)
-                .ToListAsync();
-            return manutencoes.ParaListaManutencaoDto();
-        }
-
-        public async Task<IEnumerable<ManutencaoDTO>> BuscarAgendadas()
-        {
-            var hoje = DateTime.UtcNow;
-            var manutencoes = await GetQueryableWithIncludes()
-                .Where(m => m.StatusManutencao == StatusManutencao.Agendada &&
-                           m.DataAgendada.HasValue &&
-                           m.DataAgendada.Value >= hoje)
-                .OrderBy(m => m.DataAgendada)
-                .ToListAsync();
-            return manutencoes.ParaListaManutencaoDto();
-        }
-
-        // Workflow
-        public async Task<ManutencaoDTO> AtribuirResponsavel(int manutencaoId, int usuarioResponsavelId)
-        {
-            var manutencao = await _uow.Manutencao.Get(m => m.Id == manutencaoId);
+            var manutencao = await _uow.Manutencao.Get(m => m.Id == id);
             if (manutencao == null)
-                throw new KeyNotFoundException($"Manutenção com id {manutencaoId} não encontrada.");
+                throw new KeyNotFoundException($"Manutenção com id {id} não encontrada.");
 
-            var usuario = await _uow.Usuario.Get(u => u.Id == usuarioResponsavelId);
-            if (usuario == null)
-                throw new KeyNotFoundException($"Usuário com id {usuarioResponsavelId} não encontrado.");
+            if (manutencao.StatusManutencao != StatusManutencao.Agendada)
+                throw new InvalidOperationException("Apenas manutenções agendadas podem ser iniciadas.");
 
-            manutencao.UsuarioResponsavelId = usuarioResponsavelId;
-            if (manutencao.StatusManutencao == StatusManutencao.Agendada)
-                manutencao.StatusManutencao = StatusManutencao.EmAndamento;
-
-            _uow.Manutencao.Update(manutencao);
-            await _uow.CommitAsync();
-
-            return await PegarPorId(manutencaoId);
-        }
-
-        public async Task<ManutencaoDTO> Agendar(int manutencaoId, DateTime dataAgendada)
-        {
-            var manutencao = await _uow.Manutencao.Get(m => m.Id == manutencaoId);
-            if (manutencao == null)
-                throw new KeyNotFoundException($"Manutenção com id {manutencaoId} não encontrada.");
-
-            manutencao.DataAgendada = dataAgendada;
-            manutencao.StatusManutencao = StatusManutencao.Agendada;
-
-            _uow.Manutencao.Update(manutencao);
-            await _uow.CommitAsync();
-
-            return await PegarPorId(manutencaoId);
-        }
-
-        public async Task<ManutencaoDTO> Iniciar(int manutencaoId)
-        {
-            var manutencao = await _uow.Manutencao.Get(m => m.Id == manutencaoId);
-            if (manutencao == null)
-                throw new KeyNotFoundException($"Manutenção com id {manutencaoId} não encontrada.");
-
-            if (manutencao.StatusManutencao == StatusManutencao.Concluida)
-                throw new InvalidOperationException("Manutenção já está concluída.");
-
-            if (manutencao.StatusManutencao == StatusManutencao.Cancelada)
-                throw new InvalidOperationException("Não é possível iniciar uma manutenção cancelada.");
+            if (usuarioResponsavelId.HasValue)
+            {
+                var usuario = await _uow.Usuario.Get(u => u.Id == usuarioResponsavelId.Value);
+                if (usuario == null)
+                    throw new KeyNotFoundException($"Usuário responsável com id {usuarioResponsavelId.Value} não encontrado.");
+                manutencao.UsuarioResponsavelId = usuarioResponsavelId.Value;
+            }
+            else if (!manutencao.UsuarioResponsavelId.HasValue)
+                throw new InvalidOperationException("É necessário informar um usuário responsável para iniciar a manutenção.");
 
             manutencao.StatusManutencao = StatusManutencao.EmAndamento;
             manutencao.DataInicio = DateTime.UtcNow;
@@ -225,20 +250,33 @@ namespace ActiveControlApi.Services.Manutencao
             _uow.Manutencao.Update(manutencao);
             await _uow.CommitAsync();
 
-            return await PegarPorId(manutencaoId);
+            // Atualizar status do ativo para Manutencao
+            var solicitacao = await _uow.Solicitacao.Get(s => s.Id == manutencao.SolicitacaoId);
+            if (solicitacao != null)
+            {
+                var ativo = await _uow.Ativo.Get(a => a.Id == solicitacao.AtivoId);
+                if (ativo != null && ativo.StatusAtivo != Models.Enums.statusAtivo.Manutencao)
+                {
+                    ativo.StatusAtivo = Models.Enums.statusAtivo.Manutencao;
+                    _uow.Ativo.Update(ativo);
+                    await _uow.CommitAsync();
+                }
+            }
+
+            var manutencaoCompleta = await ObterQueryComIncludes()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            return manutencaoCompleta!.ParaManutencaoDto()!;
         }
 
-        public async Task<ManutencaoDTO> Concluir(int manutencaoId, string? solucaoAplicada = null, decimal? custoReal = null)
+        public async Task<ManutencaoDTO> ConcluirManutencao(int id, string? solucaoAplicada = null, decimal? custoReal = null)
         {
-            var manutencao = await _uow.Manutencao.Get(m => m.Id == manutencaoId);
+            var manutencao = await _uow.Manutencao.Get(m => m.Id == id);
             if (manutencao == null)
-                throw new KeyNotFoundException($"Manutenção com id {manutencaoId} não encontrada.");
+                throw new KeyNotFoundException($"Manutenção com id {id} não encontrada.");
 
-            if (manutencao.StatusManutencao == StatusManutencao.Concluida)
-                throw new InvalidOperationException("Manutenção já está concluída.");
-
-            if (manutencao.StatusManutencao == StatusManutencao.Cancelada)
-                throw new InvalidOperationException("Não é possível concluir uma manutenção cancelada.");
+            if (manutencao.StatusManutencao != StatusManutencao.EmAndamento)
+                throw new InvalidOperationException("Apenas manutenções em andamento podem ser concluídas.");
 
             manutencao.StatusManutencao = StatusManutencao.Concluida;
             manutencao.DataFechamento = DateTime.UtcNow;
@@ -247,96 +285,130 @@ namespace ActiveControlApi.Services.Manutencao
                 manutencao.SolucaoAplicada = solucaoAplicada;
 
             if (custoReal.HasValue)
-                manutencao.CustoReal = custoReal;
+                manutencao.CustoReal = custoReal.Value;
 
             _uow.Manutencao.Update(manutencao);
             await _uow.CommitAsync();
 
-            return await PegarPorId(manutencaoId);
+            // Atualizar status do ativo para Disponivel
+            var solicitacao = await _uow.Solicitacao.Get(s => s.Id == manutencao.SolicitacaoId);
+            if (solicitacao != null)
+            {
+                var ativo = await _uow.Ativo.Get(a => a.Id == solicitacao.AtivoId);
+                if (ativo != null)
+                {
+                    // Verificar se há outras alocações ativas
+                    var temAlocacaoUsuario = await _uow.AtivoUsuario.Any(au => 
+                        au.AtivoId == ativo.Id && au.DataFim == null);
+                    var temAlocacaoDepartamento = await _uow.AtivoDepartamento.Any(ad => 
+                        ad.AtivoId == ativo.Id && ad.DataFim == null);
+
+                    if (temAlocacaoUsuario || temAlocacaoDepartamento)
+                        ativo.StatusAtivo = Models.Enums.statusAtivo.EmUso;
+                    else
+                        ativo.StatusAtivo = Models.Enums.statusAtivo.Disponivel;
+
+                    _uow.Ativo.Update(ativo);
+                    await _uow.CommitAsync();
+                }
+            }
+
+            var manutencaoCompleta = await ObterQueryComIncludes()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            return manutencaoCompleta!.ParaManutencaoDto()!;
         }
 
-        public async Task<ManutencaoDTO> Cancelar(int manutencaoId, string? motivo = null)
+        public async Task<ManutencaoDTO> CancelarManutencao(int id, string? motivo = null)
         {
-            var manutencao = await _uow.Manutencao.Get(m => m.Id == manutencaoId);
+            var manutencao = await _uow.Manutencao.Get(m => m.Id == id);
             if (manutencao == null)
-                throw new KeyNotFoundException($"Manutenção com id {manutencaoId} não encontrada.");
+                throw new KeyNotFoundException($"Manutenção com id {id} não encontrada.");
 
             if (manutencao.StatusManutencao == StatusManutencao.Concluida)
-                throw new InvalidOperationException("Não é possível cancelar uma manutenção concluída.");
-
-            if (manutencao.StatusManutencao == StatusManutencao.Cancelada)
-                throw new InvalidOperationException("Manutenção já está cancelada.");
+                throw new InvalidOperationException("Não é possível cancelar uma manutenção já concluída.");
 
             manutencao.StatusManutencao = StatusManutencao.Cancelada;
             manutencao.DataFechamento = DateTime.UtcNow;
 
             if (!string.IsNullOrWhiteSpace(motivo))
-                manutencao.Observacoes = $"Cancelada: {motivo}";
+                manutencao.Observacoes = $"{manutencao.Observacoes}\n[Motivo do Cancelamento]: {motivo}".Trim();
 
             _uow.Manutencao.Update(manutencao);
             await _uow.CommitAsync();
 
-            return await PegarPorId(manutencaoId);
-        }
-
-        public async Task<ManutencaoDTO> AlterarPrioridade(int manutencaoId, PrioridadeSolicitacao prioridade)
-        {
-            var manutencao = await _uow.Manutencao.Get(m => m.Id == manutencaoId);
-            if (manutencao == null)
-                throw new KeyNotFoundException($"Manutenção com id {manutencaoId} não encontrada.");
-
-            manutencao.Prioridade = prioridade;
-            _uow.Manutencao.Update(manutencao);
-            await _uow.CommitAsync();
-
-            return await PegarPorId(manutencaoId);
-        }
-
-        // Relatórios
-        public async Task<Dictionary<string, object>> ObterEstatisticas()
-        {
-            var todas = await GetQueryableWithIncludes().ToListAsync();
-            var total = todas.Count;
-            var agendadas = todas.Count(m => m.StatusManutencao == StatusManutencao.Agendada);
-            var emAndamento = todas.Count(m => m.StatusManutencao == StatusManutencao.EmAndamento);
-            var concluidas = todas.Count(m => m.StatusManutencao == StatusManutencao.Concluida);
-            var canceladas = todas.Count(m => m.StatusManutencao == StatusManutencao.Cancelada);
-            var atrasadas = todas.Count(m => m.DataPrazo.HasValue &&
-                                            m.DataPrazo.Value < DateTime.UtcNow &&
-                                            m.StatusManutencao != StatusManutencao.Concluida &&
-                                            m.StatusManutencao != StatusManutencao.Cancelada);
-
-            var porTipo = todas.GroupBy(m => m.TipoManutencao)
-                .Select(g => new { Tipo = g.Key.ToString(), Quantidade = g.Count() })
-                .ToList();
-
-            var custoTotalEstimado = todas.Where(m => m.CustoEstimado.HasValue).Sum(m => m.CustoEstimado!.Value);
-            var custoTotalReal = todas.Where(m => m.CustoReal.HasValue).Sum(m => m.CustoReal!.Value);
-
-            var tempoMedioResolucao = todas
-                .Where(m => m.StatusManutencao == StatusManutencao.Concluida && m.DataFechamento.HasValue && m.DataInicio.HasValue)
-                .Select(m => (m.DataFechamento!.Value - m.DataInicio!.Value).TotalHours)
-                .DefaultIfEmpty(0)
-                .Average();
-
-            return new Dictionary<string, object>
+            // Atualizar status do ativo
+            var solicitacao = await _uow.Solicitacao.Get(s => s.Id == manutencao.SolicitacaoId);
+            if (solicitacao != null)
             {
-                { "Total", total },
-                { "Agendadas", agendadas },
-                { "EmAndamento", emAndamento },
-                { "Concluidas", concluidas },
-                { "Canceladas", canceladas },
-                { "Atrasadas", atrasadas },
-                { "PorTipo", porTipo },
-                { "CustoTotalEstimado", custoTotalEstimado },
-                { "CustoTotalReal", custoTotalReal },
-                { "TempoMedioResolucaoHoras", Math.Round(tempoMedioResolucao, 2) }
-            };
+                var ativo = await _uow.Ativo.Get(a => a.Id == solicitacao.AtivoId);
+                if (ativo != null)
+                {
+                    // Verificar se há outras alocações ativas
+                    var temAlocacaoUsuario = await _uow.AtivoUsuario.Any(au => 
+                        au.AtivoId == ativo.Id && au.DataFim == null);
+                    var temAlocacaoDepartamento = await _uow.AtivoDepartamento.Any(ad => 
+                        ad.AtivoId == ativo.Id && ad.DataFim == null);
+
+                    if (temAlocacaoUsuario || temAlocacaoDepartamento)
+                        ativo.StatusAtivo = Models.Enums.statusAtivo.EmUso;
+                    else
+                        ativo.StatusAtivo = Models.Enums.statusAtivo.Disponivel;
+
+                    _uow.Ativo.Update(ativo);
+                    await _uow.CommitAsync();
+                }
+            }
+
+            var manutencaoCompleta = await ObterQueryComIncludes()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            return manutencaoCompleta!.ParaManutencaoDto()!;
         }
 
-        public async Task<IEnumerable<ManutencaoDTO>> BuscarManutencoesAtribuidas(int usuarioId)
+        public async Task<IEnumerable<ManutencaoDTO>> BuscarPorAtivo(int ativoId)
         {
-            return await BuscarPorUsuarioResponsavel(usuarioId);
+            var manutencoes = await ObterQueryComIncludes()
+                .Where(m => m.Solicitacao != null && m.Solicitacao.AtivoId == ativoId)
+                .OrderByDescending(m => m.DataCriacao)
+                .ToListAsync();
+
+            return manutencoes.ParaListaManutencaoDto();
+        }
+
+        public async Task<IEnumerable<ManutencaoDTO>> BuscarPorUsuarioResponsavel(int usuarioId)
+        {
+            var manutencoes = await ObterQueryComIncludes()
+                .Where(m => m.UsuarioResponsavelId == usuarioId)
+                .OrderByDescending(m => m.DataCriacao)
+                .ToListAsync();
+
+            return manutencoes.ParaListaManutencaoDto();
+        }
+
+        public async Task<IEnumerable<ManutencaoDTO>> BuscarAtrasadas()
+        {
+            var hoje = DateTime.UtcNow;
+            var manutencoes = await ObterQueryComIncludes()
+                .Where(m => 
+                    m.DataPrazo.HasValue && 
+                    m.DataPrazo.Value < hoje &&
+                    m.StatusManutencao != StatusManutencao.Concluida &&
+                    m.StatusManutencao != StatusManutencao.Cancelada)
+                .OrderBy(m => m.DataPrazo)
+                .ToListAsync();
+
+            return manutencoes.ParaListaManutencaoDto();
+        }
+
+        public async Task<IEnumerable<ManutencaoDTO>> BuscarPorPeriodo(DateTime dataInicio, DateTime dataFim)
+        {
+            var manutencoes = await ObterQueryComIncludes()
+                .Where(m => m.DataCriacao >= dataInicio && m.DataCriacao <= dataFim)
+                .OrderByDescending(m => m.DataCriacao)
+                .ToListAsync();
+
+            return manutencoes.ParaListaManutencaoDto();
         }
     }
 }

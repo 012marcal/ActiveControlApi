@@ -1,9 +1,10 @@
-﻿using ActiveControlApi.DTO.Empresas;
+using ActiveControlApi.DTO.Empresas;
+using ActiveControlApi.DTO.Departamento;
 using ActiveControlApi.Services.Empresa;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.Swagger.Annotations;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ActiveControlApi.Controllers.Empresas
 {
@@ -23,7 +24,7 @@ namespace ActiveControlApi.Controllers.Empresas
 
         [HttpPost]
         [Route("v1/Empresa")]
-        [SwaggerOperation("Adição de um(a) Empresa, Adição de um(a) Empresa e retornando o Id do objeto adicionado, logo não é necessário informar o id")]
+        [SwaggerOperation(Summary = "Adi��o de um(a) Empresa, Adi��o de um(a) Empresa e retornando o Id do objeto adicionado, logo n�o � necess�rio informar o id")]
         [SwaggerResponse(200, "O Id do objeto adicionado: ", typeof(int))]
         public async Task<ActionResult<EmpresaDTO>> Adicionar(EmpresaDTO empresaDTO)
         {
@@ -42,7 +43,7 @@ namespace ActiveControlApi.Controllers.Empresas
 
         [HttpGet]
         [Route("v1/Empresa")]
-        [SwaggerOperation("Obter todas as Empresas cadastradas.")]
+        [SwaggerOperation(Summary = "Obter todas as Empresas cadastradas.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de empresas obtida com sucesso.", typeof(IEnumerable<EmpresaDTO>))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Nenhuma empresa encontrada.")]
         public async Task<ActionResult<IEnumerable<EmpresaDTO>>> ObterTodas()
@@ -57,9 +58,9 @@ namespace ActiveControlApi.Controllers.Empresas
 
         [HttpGet]
         [Route("v1/Empresa/{id:int}")]
-        [SwaggerOperation("Obter uma Empresa pelo seu Id.")]
+        [SwaggerOperation(Summary = "Obter uma Empresa pelo seu Id.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Empresa encontrada.", typeof(EmpresaDTO))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "Empresa não encontrada.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Empresa n�o encontrada.")]
         public async Task<ActionResult<EmpresaDTO>> ObterPorId(int id)
         {
             try
@@ -75,10 +76,9 @@ namespace ActiveControlApi.Controllers.Empresas
 
         [HttpPut]
         [Route("v1/Empresa/{id:int}")]
-        [EndpointSummary("Atualizar Empresa")]
-        [SwaggerOperation("Atualizar uma Empresa existente.")]
+        [SwaggerOperation(Summary = "Atualizar uma Empresa existente")]
         [SwaggerResponse(StatusCodes.Status200OK, "Empresa atualizada com sucesso.", typeof(EmpresaDTO))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "Empresa não encontrada.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Empresa n�o encontrada.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao atualizar a empresa.")]
         public async Task<ActionResult<EmpresaDTO>> Atualizar(int id, [FromBody] EmpresaDTO empresaDTO)
         {
@@ -100,9 +100,9 @@ namespace ActiveControlApi.Controllers.Empresas
         
         [HttpDelete]
         [Route("v1/Empresa/{id:int}")]
-        [SwaggerOperation("Remover uma Empresa existente pelo Id.")]
+        [SwaggerOperation(Summary = "Remover uma Empresa existente pelo Id.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "Empresa removida com sucesso.")]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "Empresa não encontrada.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Empresa n�o encontrada.")]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao remover a empresa.")]
         public async Task<IActionResult> Remover(int id)
         {
@@ -124,7 +124,7 @@ namespace ActiveControlApi.Controllers.Empresas
 
         [HttpGet]
         [Route("v1/Empresa/Buscar")]
-        [SwaggerOperation("Buscar Empresas por filtros: Razão Social, CNPJ, Cidade ou Estado.")]
+        [SwaggerOperation(Summary = "Buscar Empresas por filtros: Raz�o Social, CNPJ, Cidade ou Estado.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Empresas encontradas.", typeof(IEnumerable<EmpresaDTO>))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Nenhuma empresa encontrada com os filtros fornecidos.")]
         public async Task<ActionResult<IEnumerable<EmpresaDTO>>> Buscar([FromQuery] FiltroEmpresaDTO filtro)
@@ -135,6 +135,28 @@ namespace ActiveControlApi.Controllers.Empresas
                 return NotFound(new { message = "Nenhuma empresa encontrada com os filtros fornecidos." });
 
             return Ok(empresas);
+        }
+
+        [HttpGet]
+        [Route("v1/Empresa/{id:int}/Departamentos")]
+        [SwaggerOperation(Summary = "Obter todos os Departamentos de uma Empresa.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Departamentos encontrados.", typeof(IEnumerable<DepartamentoDTO>))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Empresa n�o encontrada ou sem departamentos.")]
+        public async Task<ActionResult<IEnumerable<DepartamentoDTO>>> ObterDepartamentosPorEmpresa(int id)
+        {
+            try
+            {
+                var departamentos = await _empresaService.ObterDepartamentosPorEmpresa(id);
+                
+                if (!departamentos.Any())
+                    return NotFound(new { message = $"Nenhum departamento encontrado para a empresa com id {id}." });
+
+                return Ok(departamentos);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
     }
 }
