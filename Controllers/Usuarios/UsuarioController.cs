@@ -8,7 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace ActiveControlApi.Controllers.Usuarios
 {
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _service;
