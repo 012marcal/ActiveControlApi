@@ -104,7 +104,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultString");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -159,9 +159,7 @@ var app = builder.Build();
 // Habilitar arquivos estáticos para logo
 app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -173,7 +171,7 @@ if (app.Environment.IsDevelopment())
             c.EnableValidator();
         c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
     });
-}
+
 
 app.UseHttpsRedirection();
 
