@@ -107,9 +107,15 @@ builder.Services.AddSwaggerGen(c =>
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseNpgsql(connectionString);
-});
+    options.UseNpgsql(
+        connectionString,
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorCodesToAdd: null
+        )
+    )
+);
 
 
 //REPOSITORIES >
@@ -153,6 +159,16 @@ builder.Services.AddScoped<ICargoService, CargoService>();
 builder.Services.AddScoped<IUsuarioCargoService, UsuarioCargoService>();
 builder.Services.AddScoped<IUsuarioDepartamentoService, UsuarioDepartamentoService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsAberto", policy =>
+    {
+        policy.AllowAnyOrigin()   // Permite qualquer site
+              .AllowAnyHeader()   // Permite qualquer header
+              .AllowAnyMethod();  // Permite GET, POST, PUT, DELETE, etc.
+    });
+});
+
 
 var app = builder.Build();
 
@@ -160,18 +176,20 @@ var app = builder.Build();
 app.UseStaticFiles();
 
 
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Active Control API v1");
-        c.InjectJavascript("/swagger-logo.js");
-        c.DisplayRequestDuration();
-        c.EnableDeepLinking();
-        c.EnableFilter();
-            c.EnableValidator();
-        c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
-    });
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Active Control API v1");
+    c.InjectJavascript("/swagger-logo.js");
+    c.DisplayRequestDuration();
+    c.EnableDeepLinking();
+    c.EnableFilter();
+    c.EnableValidator();
+    c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
+});
 
+
+app.UseCors("CorsAberto");
 
 app.UseHttpsRedirection();
 
