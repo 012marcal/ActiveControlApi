@@ -6,6 +6,7 @@ namespace ActiveControlApi.DTO.Empresas
     public class EmpresaDTO
     {
 
+        public int Id { get; set; }
         [Required(ErrorMessage = "Campo Razao Social Obrigatorio")]
         public string RazaoSocial { get; set; }
 

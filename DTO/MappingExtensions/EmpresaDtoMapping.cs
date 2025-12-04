@@ -14,6 +14,7 @@ namespace ActiveControlApi.DTO.MappingExtensions
             
             return new EmpresaDTO
             {
+                Id = empresaRegistro.Id,
                 RazaoSocial = empresaRegistro.RazaoSocial,
                 NomeFantasia = empresaRegistro.NomeFantasia,
                 Cnpj = empresaRegistro.Cnpj,
@@ -35,6 +36,7 @@ namespace ActiveControlApi.DTO.MappingExtensions
 
             return new Empresa
             {
+                Id = empresaDtoRegistro.Id,
                 RazaoSocial = empresaDtoRegistro.RazaoSocial,
                 NomeFantasia = empresaDtoRegistro.NomeFantasia,
                 Cnpj = empresaDtoRegistro.Cnpj,
@@ -56,6 +58,7 @@ namespace ActiveControlApi.DTO.MappingExtensions
 
             return empresaListRegistro.Select(e => new EmpresaDTO
             {
+                Id = e.Id,
                 RazaoSocial = e.RazaoSocial,
                 NomeFantasia = e.NomeFantasia,
                 Cnpj = e.Cnpj,
