@@ -48,5 +48,12 @@ namespace ActiveControlApi.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal TaxaDepreciacaoAnual {  get; set; }
 
+        [JsonIgnore]
+        public ICollection<AtivoUsuario> AtivoUsuario { get; set; } = new List<AtivoUsuario>();
+
+        [JsonIgnore]
+        public ICollection<AtivoDepartamento> AtivoDepartamento { get; set; } = new List<AtivoDepartamento>();
+
+
     }
 }

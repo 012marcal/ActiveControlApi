@@ -73,6 +73,29 @@ namespace ActiveControlApi.Controllers.Ativos
                 return NotFound(new { message = ex.Message });
             }
         }
+        [HttpGet]
+        [Route("v1/Ativo/Completo/{id:int}")]
+        [SwaggerOperation(Summary = "Obter Ativo por id completo com Modelo e Categoria")]
+        public async Task<IActionResult> GetAtivoCompletoPorId(int id)
+        {
+            try
+            {
+                var ativo = await _ativoService.GetAtivoCompleto(id);
+                return Ok(ativo);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+        [HttpGet]
+        [Route("v1/Ativo/Completo")]
+        [SwaggerOperation(Summary = "Listar todos Ativos completos com Modelo e Categoria")]
+        public async Task<IActionResult> GetTodosAtivosCompletos()
+        {
+            var itens = await _ativoService.GetTodosAtivosCompletos();
+            return Ok(itens);
+        }
 
         [HttpPut]
         [Route("v1/Ativo/{id:int}")]

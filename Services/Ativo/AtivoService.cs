@@ -33,6 +33,21 @@ namespace ActiveControlApi.Services.Ativo
 
             return ativo.ParaAtivoDto();
         }
+        public async Task<AtivoCompletoDTO?> GetAtivoCompleto(int id)
+        {
+            var ativo = await _uow.Ativo.GetAtivoCompletoAsync(id);
+
+            if (ativo == null)
+                throw new KeyNotFoundException("Ativo não encontrado.");
+
+            return ativo.ParaAtivoCompletoDto();
+        }
+
+        public async Task<IEnumerable<AtivoCompletoDTO>> GetTodosAtivosCompletos()
+        {
+            var ativos = await _uow.Ativo.GetAllAtivoCompletoAsync();
+            return ativos.ParaListaAtivoCompletoDto();
+        }
 
         public async Task<AtivoDTO> CriarAtivo(AtivoDTO ativoRegistro)
         {
