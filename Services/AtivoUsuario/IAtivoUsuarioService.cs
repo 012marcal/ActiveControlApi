@@ -8,7 +8,7 @@ namespace ActiveControlApi.Services.AtivoUsuario
         Task<AtivoUsuarioDTO> PegarPorId(int id);
         Task<AtivoUsuarioDTO> Alocar(AtivoUsuarioDTO dto);
         Task<AtivoUsuarioDTO> Atualizar(int id, AtivoUsuarioDTO dto);
-        Task<AtivoUsuarioDTO> Encerrar(int id);
+        Task<AtivoUsuarioDTO> Encerrar(int ativoId, DateTime dataFim);
         Task<bool> Remover(int id);
         Task VerificarAlocacoesVencidas();
     }

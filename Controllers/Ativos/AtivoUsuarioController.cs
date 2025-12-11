@@ -86,18 +86,20 @@ namespace ActiveControlApi.Controllers.Ativos
                 return BadRequest(new { message = ex.Message });
             }
         }
-
         [HttpPut]
-        [Route("v1/AtivoUsuario/{id:int}/encerrar")]
-        [SwaggerOperation(Summary = "Encerrar uma alocação de Ativo para Usuário, definindo a data de término como a data atual")]
+        [Route("v1/AtivoUsuario/ativo/{ativoId:int}/encerrar")]
+        [SwaggerOperation(Summary = "Encerrar a alocação ativa de um Ativo para Usuário, informando a data de término")]
         [SwaggerResponse(StatusCodes.Status200OK, "Alocação encerrada com sucesso", typeof(AtivoUsuarioDTO))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Alocação não encontrada")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao encerrar alocação")]
-        public async Task<ActionResult<AtivoUsuarioDTO>> Encerrar(int id)
+        public async Task<ActionResult<AtivoUsuarioDTO>> Encerrar(
+            int ativoId,
+            [FromQuery] DateTime dataFim
+        )
         {
             try
             {
-                var atualizado = await _service.Encerrar(id);
+                var atualizado = await _service.Encerrar(ativoId, dataFim);
                 return Ok(atualizado);
             }
             catch (KeyNotFoundException ex)

@@ -8,7 +8,7 @@ namespace ActiveControlApi.Services.AtivoDepartamento
         Task<AtivoDepartamentoDTO> PegarPorId(int id);
         Task<AtivoDepartamentoDTO> Alocar(AtivoDepartamentoDTO dto);
         Task<AtivoDepartamentoDTO> Atualizar(int id, AtivoDepartamentoDTO dto);
-        Task<AtivoDepartamentoDTO> Encerrar(int id);
+        Task<AtivoDepartamentoDTO> Encerrar(int ativoId, DateTime dataFim);
         Task<bool> Remover(int id);
         Task VerificarAlocacoesVencidas();
     }
